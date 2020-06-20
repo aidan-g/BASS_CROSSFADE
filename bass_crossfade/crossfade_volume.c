@@ -8,6 +8,31 @@ typedef struct {
 } CF_HANDLER;
 
 BOOL crossfade_slide_volume_linear(HSTREAM handle, DWORD period, float value) {
+	FLOAT new_value;
+	FLOAT current_value;
+	FLOAT step;
+	if (!BASS_ChannelGetAttribute(handle, BASS_ATTRIB_VOL, &current_value)) {
+		return FALSE;
+	}
+	step = current_value - value / period;
+	for (new_value = current_value; new_value != value;) {
+		if (new_value < value) {
+			new_value += step;
+			if (new_value > value) {
+				new_value = value;
+			}
+		}
+		else if (new_value > value) {
+			new_value -= step;
+			if (new_value < value) {
+				new_value = value;
+			}
+		}
+		if (!BASS_ChannelSetAttribute(handle, BASS_ATTRIB_VOL, new_value)) {
+			return FALSE;
+		}
+		Sleep(1);
+	}
 	return FALSE;
 }
 
