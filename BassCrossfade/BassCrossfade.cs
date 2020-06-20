@@ -52,6 +52,7 @@ namespace ManagedBass.Crossfade
         {
             lock (SyncRoot)
             {
+                Bass.ChannelSetAttribute(channelHandle, ChannelAttribute.Volume, 0);
                 if (!this.AddToMixer(channelHandle))
                 {
                     if (this.Queue.Contains(channelHandle))
@@ -101,7 +102,6 @@ namespace ManagedBass.Crossfade
                 }
                 var channelHandle = this.Queue[0];
                 this.Queue.RemoveAt(0);
-                Bass.ChannelSetAttribute(channelHandle, ChannelAttribute.Volume, 0);
                 if (BassMix.MixerAddChannel(this.ChannelHandle, channelHandle, BassFlags.Default))
                 {
                     return true;
@@ -114,7 +114,15 @@ namespace ManagedBass.Crossfade
             var channelHandles = BassMix.MixerGetChannels(this.ChannelHandle);
             if (channelHandles.Length == 0)
             {
-                return BassMix.MixerAddChannel(this.ChannelHandle, channelHandle, BassFlags.Default);
+                if (BassMix.MixerAddChannel(this.ChannelHandle, channelHandle, BassFlags.Default))
+                {
+                    FadeIn(channelHandle);
+                    while (Bass.ChannelGetAttribute(channelHandle, ChannelAttribute.Volume) < 1)
+                    {
+                        Thread.Sleep(10);
+                    }
+                    return true;
+                }
             }
             return false;
         }
