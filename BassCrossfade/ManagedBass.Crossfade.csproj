@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net40;net461</TargetFrameworks>
+    <AssemblyName>ManagedBass.Crossfade</AssemblyName>
+    <OutputPath>..\distribution\</OutputPath>
+    <Version>0.0.1</Version>
+    <Platforms>x86;x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="ManagedBass" Condition="'$(TargetFramework)' == 'net40'">
+      <HintPath>..\lib\net40\ManagedBass.dll</HintPath>
+    </Reference>
+    <Reference Include="ManagedBass.Mix" Condition="'$(TargetFramework)' == 'net40'">
+      <HintPath>..\lib\net40\ManagedBass.Mix.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="ManagedBass" Condition="'$(TargetFramework)' == 'net461'">
+      <HintPath>..\lib\ManagedBass.dll</HintPath>
+    </Reference>
+    <Reference Include="ManagedBass.Mix" Condition="'$(TargetFramework)' == 'net461'">
+      <HintPath>..\lib\ManagedBass.Mix.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Platform)' == 'x86'">
+    <None Include="..\lib\x86\bass_crossfade.dll" Link="bass_crossfade.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Platform)' == 'x64'">
+    <None Include="..\lib\x64\bass_crossfade.dll" Link="bass_crossfade.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

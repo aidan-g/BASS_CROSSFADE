@@ -5,6 +5,7 @@
 #include "bass_crossfade.h"
 #include "crossfade_config.h"
 #include "crossfade_syncs.h"
+#include "crossfade_volume.h"
 
 BOOL is_initialized = FALSE;
 
@@ -52,12 +53,18 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_SetConfig)(CF_ATTRIBUTE attrib, DWORD value
 BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_GetConfig)(CF_ATTRIBUTE attrib, DWORD* value) {
 	return crossfade_config_get(attrib, value);
 }
-__declspec(dllexport)
 BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_StreamRegister)(HSTREAM handle) {
 	return crossfade_sync_register(handle);
 }
 
-__declspec(dllexport)
 BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_StreamUnregister)(HSTREAM handle) {
 	return crossfade_sync_unregister(handle);
+}
+
+BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_FadeIn)(HSTREAM handle) {
+	return crossfade_slide_volume(handle, 1);
+}
+
+BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_FadeOut)(HSTREAM handle) {
+	return crossfade_slide_volume(handle, 0);
 }

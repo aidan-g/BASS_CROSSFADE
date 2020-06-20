@@ -5,6 +5,11 @@ VisualStudioVersion = 16.0.30204.135
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bass_crossfade", "bass_crossfade\bass_crossfade.vcxproj", "{E612BC45-E1B1-4F71-8DCC-60ECC41B7596}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagedBass.Crossfade", "BassCrossfade\ManagedBass.Crossfade.csproj", "{65AD9FA6-88BF-416C-98E2-E2B0E565EB35}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E612BC45-E1B1-4F71-8DCC-60ECC41B7596} = {E612BC45-E1B1-4F71-8DCC-60ECC41B7596}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +26,14 @@ Global
 		{E612BC45-E1B1-4F71-8DCC-60ECC41B7596}.Release|x64.Build.0 = Release|x64
 		{E612BC45-E1B1-4F71-8DCC-60ECC41B7596}.Release|x86.ActiveCfg = Release|Win32
 		{E612BC45-E1B1-4F71-8DCC-60ECC41B7596}.Release|x86.Build.0 = Release|Win32
+		{65AD9FA6-88BF-416C-98E2-E2B0E565EB35}.Debug|x64.ActiveCfg = Debug|x64
+		{65AD9FA6-88BF-416C-98E2-E2B0E565EB35}.Debug|x64.Build.0 = Debug|x64
+		{65AD9FA6-88BF-416C-98E2-E2B0E565EB35}.Debug|x86.ActiveCfg = Debug|x86
+		{65AD9FA6-88BF-416C-98E2-E2B0E565EB35}.Debug|x86.Build.0 = Debug|x86
+		{65AD9FA6-88BF-416C-98E2-E2B0E565EB35}.Release|x64.ActiveCfg = Release|x64
+		{65AD9FA6-88BF-416C-98E2-E2B0E565EB35}.Release|x64.Build.0 = Release|x64
+		{65AD9FA6-88BF-416C-98E2-E2B0E565EB35}.Release|x86.ActiveCfg = Release|x86
+		{65AD9FA6-88BF-416C-98E2-E2B0E565EB35}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
