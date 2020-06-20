@@ -42,17 +42,17 @@ namespace ManagedBass.Crossfade.Tests
                 Assert.Fail(string.Format("Failed to get channel info: {0}", Enum.GetName(typeof(Errors), Bass.LastError)));
             }
 
-            if (!BassCrossfade.StreamRegister(sourceChannel1))
-            {
-                Assert.Fail("Failed to register stream.");
-            }
-
-            if (!BassCrossfade.StreamRegister(sourceChannel2))
-            {
-                Assert.Fail("Failed to register stream.");
-            }
-
             var playbackChannel = BassMix.CreateMixerStream(channelInfo.Frequency, channelInfo.Channels, BassFlags.Default | BassFlags.Float);
+            if (playbackChannel == 0)
+            {
+                Assert.Fail(string.Format("Failed to create mixer stream: {0}", Enum.GetName(typeof(Errors), Bass.LastError)));
+            }
+
+            var crossfade = new BassCrossfade(playbackChannel);
+            crossfade.Add(sourceChannel1);
+            crossfade.Add(sourceChannel2);
+
+            Assert.AreEqual(1, crossfade.Queue.Count, "Expected 1 queued stream.");
 
             if (!Bass.ChannelPlay(playbackChannel))
             {

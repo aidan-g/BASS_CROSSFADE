@@ -12,14 +12,19 @@ namespace ManagedBass.Crossfade
 
         public static readonly object SyncRoot = new object();
 
-        public BassCrossfade()
+        private BassCrossfade()
         {
             this.Queue = new List<int>();
         }
 
+        public BassCrossfade(int channelHandle) : this()
+        {
+            this.ChannelHandle = channelHandle;
+        }
+
         public IList<int> Queue { get; private set; }
 
-        public int ChannelHandle { get; set; }
+        public int ChannelHandle { get; private set; }
 
         public bool Contains(int channelHandle)
         {
@@ -143,19 +148,19 @@ namespace ManagedBass.Crossfade
         }
 
         [DllImport(DllName)]
-        static extern bool BASS_CROSSFADE_HANDLER_Init();
+        static extern bool BASS_CROSSFADE_Init();
 
         public static bool Init()
         {
-            return BASS_CROSSFADE_HANDLER_Init();
+            return BASS_CROSSFADE_Init();
         }
 
         [DllImport(DllName)]
-        static extern bool BASS_CROSSFADE_HANDLER_Free();
+        static extern bool BASS_CROSSFADE_Free();
 
         public static bool Free()
         {
-            return BASS_CROSSFADE_HANDLER_Free();
+            return BASS_CROSSFADE_Free();
         }
 
         [DllImport(DllName)]

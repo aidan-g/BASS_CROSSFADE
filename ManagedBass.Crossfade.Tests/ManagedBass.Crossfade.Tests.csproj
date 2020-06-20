@@ -26,14 +26,36 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup Condition="'$(Platform)' == 'x86'">
+    <None Include="..\lib\x86\bass.dll" Link="bass.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\lib\x86\bassmix.dll" Link="bassmix.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Platform)' == 'x64'">
+    <None Include="..\lib\x64\bass.dll" Link="bass.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\lib\x64\bassmix.dll" Link="bassmix.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
   <ItemGroup>
     <Folder Include="Media\" />
     <Folder Include="Properties\" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\Media\01 Botanical Dimensions.m4a" Link="Media\01 Botanical Dimensions.m4a" />
-    <None Include="..\Media\02 Outer Shpongolia.m4a" Link="Media\02 Outer Shpongolia.m4a" />
+    <None Include="..\Media\01 Botanical Dimensions.m4a" Link="Media\01 Botanical Dimensions.m4a">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\Media\02 Outer Shpongolia.m4a" Link="Media\02 Outer Shpongolia.m4a">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
