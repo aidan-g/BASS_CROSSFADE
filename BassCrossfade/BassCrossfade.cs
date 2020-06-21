@@ -1,8 +1,5 @@
-﻿using ManagedBass.Mix;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Runtime.InteropServices;
-using System.Threading;
 
 namespace ManagedBass.Crossfade
 {
@@ -12,17 +9,10 @@ namespace ManagedBass.Crossfade
 
         public static readonly object SyncRoot = new object();
 
-        private BassCrossfade()
-        {
-            this.Queue = new List<int>();
-        }
-
-        public BassCrossfade(int channelHandle) : this()
+        public BassCrossfade(int channelHandle)
         {
             this.ChannelHandle = channelHandle;
         }
-
-        public IList<int> Queue { get; private set; }
 
         public int ChannelHandle { get; private set; }
 
@@ -30,8 +20,7 @@ namespace ManagedBass.Crossfade
         {
             lock (SyncRoot)
             {
-                var channelHandles = BassMix.MixerGetChannels(this.ChannelHandle);
-                return channelHandles.Contains(channelHandle) || this.Queue.Contains(channelHandle);
+                throw new NotImplementedException();
             }
         }
 
@@ -39,17 +28,7 @@ namespace ManagedBass.Crossfade
         {
             lock (SyncRoot)
             {
-                var channelHandles = BassMix.MixerGetChannels(this.ChannelHandle);
-                if (channelHandles.Contains(channelHandle))
-                {
-                    return 0;
-                }
-                var index = this.Queue.IndexOf(channelHandle);
-                if (index == -1)
-                {
-                    return -1;
-                }
-                return index + 1;
+                throw new NotImplementedException();
             }
         }
 
@@ -57,17 +36,7 @@ namespace ManagedBass.Crossfade
         {
             lock (SyncRoot)
             {
-                Bass.ChannelSetAttribute(channelHandle, ChannelAttribute.Volume, 0);
-                if (!this.AddToMixer(channelHandle))
-                {
-                    if (this.Queue.Contains(channelHandle))
-                    {
-                        return false;
-                    }
-                    this.Queue.Add(channelHandle);
-                }
-                StreamRegister(channelHandle);
-                return true;
+                throw new NotImplementedException();
             }
         }
 
@@ -75,12 +44,7 @@ namespace ManagedBass.Crossfade
         {
             lock (SyncRoot)
             {
-                StreamUnregister(channelHandle);
-                if (this.RemoveFromMixer(channelHandle))
-                {
-                    return true;
-                }
-                return this.Queue.Remove(channelHandle);
+                throw new NotImplementedException();
             }
         }
 
@@ -88,64 +52,10 @@ namespace ManagedBass.Crossfade
         {
             lock (SyncRoot)
             {
-                var channelHandles = BassMix.MixerGetChannels(this.ChannelHandle);
-                foreach (var channelHandle in channelHandles)
-                {
-                    BassMix.MixerRemoveChannel(channelHandle);
-                }
-                this.Queue.Clear();
+                throw new NotImplementedException();
             }
         }
 
-        protected virtual bool AddToMixer()
-        {
-            do
-            {
-                if (this.Queue.Count == 0)
-                {
-                    return false;
-                }
-                var channelHandle = this.Queue[0];
-                this.Queue.RemoveAt(0);
-                if (BassMix.MixerAddChannel(this.ChannelHandle, channelHandle, BassFlags.Default))
-                {
-                    return true;
-                }
-            } while (true);
-        }
-
-        protected virtual bool AddToMixer(int channelHandle)
-        {
-            var channelHandles = BassMix.MixerGetChannels(this.ChannelHandle);
-            if (channelHandles.Length == 0)
-            {
-                if (BassMix.MixerAddChannel(this.ChannelHandle, channelHandle, BassFlags.Default))
-                {
-                    FadeIn(channelHandle);
-                    while (Bass.ChannelGetAttribute(channelHandle, ChannelAttribute.Volume) < 1)
-                    {
-                        Thread.Sleep(10);
-                    }
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        protected virtual bool RemoveFromMixer(int channelHandle)
-        {
-            if (BassMix.ChannelGetMixer(channelHandle) == this.ChannelHandle)
-            {
-                this.AddToMixer();
-                FadeOut(channelHandle);
-                while (Bass.ChannelGetAttribute(channelHandle, ChannelAttribute.Volume) > 0)
-                {
-                    Thread.Sleep(10);
-                }
-                return BassMix.MixerRemoveChannel(channelHandle);
-            }
-            return false;
-        }
 
         [DllImport(DllName)]
         static extern bool BASS_CROSSFADE_Init();
@@ -185,19 +95,30 @@ namespace ManagedBass.Crossfade
         }
 
         [DllImport(DllName)]
-        static extern bool BASS_CROSSFADE_StreamRegister(int Handle);
+        static extern IntPtr BASS_CROSSFADE_GetChannels(out int Count);
 
-        public static bool StreamRegister(int Handle)
+        public static int[] GetChannels(out int Count)
         {
-            return BASS_CROSSFADE_StreamRegister(Handle);
+            var channels = BASS_CROSSFADE_GetChannels(out Count);
+            var result = new int[Count];
+            Marshal.Copy(channels, result, 0, Count);
+            return result;
         }
 
         [DllImport(DllName)]
-        static extern bool BASS_CROSSFADE_StreamUnregister(int Handle);
+        static extern bool BASS_CROSSFADE_StreamEnqueue(int Handle);
 
-        public static bool StreamUnregister(int Handle)
+        public static bool StreamEnqueue(int Handle)
         {
-            return BASS_CROSSFADE_StreamUnregister(Handle);
+            return BASS_CROSSFADE_StreamEnqueue(Handle);
+        }
+
+        [DllImport(DllName)]
+        static extern bool BASS_CROSSFADE_StreamRemove(int Handle);
+
+        public static bool StreamRemove(int Handle)
+        {
+            return BASS_CROSSFADE_StreamRemove(Handle);
         }
 
         [DllImport(DllName)]
@@ -220,8 +141,9 @@ namespace ManagedBass.Crossfade
     public enum BassCrossfadeAttribute
     {
         None = 0,
-        Period = 1,
-        Type = 2
+        Mixer = 1,
+        Period = 2,
+        Type = 3
     }
 
     public enum BassCrossfadeType

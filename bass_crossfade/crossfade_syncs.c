@@ -1,4 +1,5 @@
 #include "crossfade_config.h"
+#include "crossfade_mixer.h"
 #include "crossfade_syncs.h"
 #include "crossfade_volume.h"
 
@@ -15,6 +16,7 @@ void CALLBACK crossfade_sync_begin(HSYNC handle, DWORD channel, DWORD data, void
 }
 
 void CALLBACK crossfade_sync_end(HSYNC handle, DWORD channel, DWORD data, void* user) {
+	crossfade_mixer_next();
 	crossfade_slide_volume(channel, 0);
 }
 

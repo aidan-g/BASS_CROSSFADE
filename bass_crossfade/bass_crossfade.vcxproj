@@ -18,22 +18,34 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition="'$(Platform)'=='Win32'">
     <Library Include="..\lib\x86\bass.lib" />
+    <Library Include="..\lib\x86\bassmix.lib" />
     <Library Include="..\lib\x86\msvcrt.lib" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Platform)'=='x64'">
+    <Library Include="..\lib\x64\bass.lib" />
+    <Library Include="..\lib\x64\bassmix.lib" />
+    <Library Include="..\lib\x64\msvcrt.lib" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\bass\bass.h" />
     <ClInclude Include="bass_crossfade.h" />
     <ClInclude Include="crossfade_config.h" />
+    <ClInclude Include="crossfade_mixer.h" />
     <ClInclude Include="crossfade_syncs.h" />
     <ClInclude Include="crossfade_volume.h" />
+    <ClInclude Include="crossfade_queue.h" />
+    <ClInclude Include="queue.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bass_crossfade.c" />
     <ClCompile Include="crossfade_config.c" />
+    <ClCompile Include="crossfade_mixer.c" />
     <ClCompile Include="crossfade_syncs.c" />
     <ClCompile Include="crossfade_volume.c" />
+    <ClCompile Include="crossfade_queue.c" />
+    <ClCompile Include="queue.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

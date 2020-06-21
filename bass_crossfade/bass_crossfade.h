@@ -14,8 +14,9 @@
 #define DEFAULT_TYPE 1
 
 typedef enum {
-	CF_PERIOD = 1,
-	CF_TYPE = 2
+	CF_MIXER = 1,
+	CF_PERIOD = 2,
+	CF_TYPE = 3
 } CF_ATTRIBUTE;
 
 typedef enum {
@@ -37,10 +38,13 @@ __declspec(dllexport)
 BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_GetConfig)(CF_ATTRIBUTE attrib, DWORD* value);
 
 __declspec(dllexport)
-BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_StreamRegister)(HSTREAM handle);
+DWORD* BASSCROSSFADEDEF(BASS_CROSSFADE_GetChannels)(DWORD* count);
 
 __declspec(dllexport)
-BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_StreamUnregister)(HSTREAM handle);
+BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_StreamEnqueue)(HSTREAM handle);
+
+__declspec(dllexport)
+BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_StreamRemove)(HSTREAM handle);
 
 __declspec(dllexport)
 BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_FadeIn)(HSTREAM handle);

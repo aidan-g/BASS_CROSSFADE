@@ -4,6 +4,8 @@
 
 #include "bass_crossfade.h"
 #include "crossfade_config.h"
+#include "crossfade_mixer.h"
+#include "crossfade_queue.h"
 #include "crossfade_syncs.h"
 #include "crossfade_volume.h"
 
@@ -20,6 +22,9 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_Init)() {
 	if (is_initialized) {
 		return FALSE;
 	}
+	if (!crossfade_queue_create()) {
+		return FALSE;
+	}
 	is_initialized = TRUE;
 #if _DEBUG
 	printf("BASS CROSSFADE initialized.\n");
@@ -31,6 +36,9 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_Free)() {
 	BOOL success = TRUE;
 	if (!is_initialized) {
 		success = FALSE;
+	}
+	else {
+		success &= crossfade_queue_free();
 	}
 	if (success) {
 		is_initialized = FALSE;
@@ -53,12 +61,29 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_SetConfig)(CF_ATTRIBUTE attrib, DWORD value
 BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_GetConfig)(CF_ATTRIBUTE attrib, DWORD* value) {
 	return crossfade_config_get(attrib, value);
 }
-BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_StreamRegister)(HSTREAM handle) {
-	return crossfade_sync_register(handle);
+
+DWORD* BASSCROSSFADEDEF(BASS_CROSSFADE_GetChannels)(DWORD* count) {
+	DWORD position;
+	DWORD mixer_count;
+	DWORD queue_count;
+	static HSTREAM handles[MAX_CHANNELS];
+	HSTREAM* mixer_handles = crossfade_mixer_get(&mixer_count);
+	HSTREAM* queue_handles = crossfade_mixer_get(&queue_count);
+	for (position = 0; position < mixer_count; position++, (*count)++) {
+		handles[*count] = mixer_handles[position];
+	}
+	for (position = 0; position < queue_count; position++, (*count)++) {
+		handles[*count] = queue_handles[position];
+	}
+	return handles;
 }
 
-BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_StreamUnregister)(HSTREAM handle) {
-	return crossfade_sync_unregister(handle);
+BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_StreamEnqueue)(HSTREAM handle) {
+	return crossfade_mixer_add(handle, FALSE) || crossfade_sync_register(handle);
+}
+
+BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_StreamRemove)(HSTREAM handle) {
+	return crossfade_mixer_remove(handle) || crossfade_sync_unregister(handle);
 }
 
 BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_FadeIn)(HSTREAM handle) {
