@@ -55,7 +55,17 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_Free)() {
 }
 
 BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_SetConfig)(CF_ATTRIBUTE attrib, DWORD value) {
-	return crossfade_config_set(attrib, value);
+	if (!crossfade_config_set(attrib, value)) {
+		return FALSE;
+	}
+	switch (attrib)
+	{
+	case CF_IN_PERIOD:
+	case CF_OUT_PERIOD:
+		crossfade_sync_refresh();
+		break;
+	}
+	return TRUE;
 }
 
 BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_GetConfig)(CF_ATTRIBUTE attrib, DWORD* value) {

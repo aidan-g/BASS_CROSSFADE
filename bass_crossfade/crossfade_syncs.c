@@ -31,6 +31,26 @@ QWORD crossfade_sync_end_position(HSTREAM handle) {
 	return BASS_ChannelGetLength(handle, BASS_POS_BYTE) - BASS_ChannelSeconds2Bytes(handle, period / 1000);
 }
 
+BOOL crossfade_sync_refresh() {
+	DWORD position;
+	for (position = 0; position < MAX_CHANNELS; position++) {
+		if (!syncs[position].handle) {
+			continue;
+		}
+		if (syncs[position].fade_out) {
+			BASS_ChannelRemoveSync(syncs[position].handle, syncs[position].fade_out);
+			syncs[position].fade_out = BASS_ChannelSetSync(
+				syncs[position].handle, 
+				BASS_SYNC_POS | BASS_SYNC_ONETIME, 
+				crossfade_sync_end_position(syncs[position].handle),
+				&crossfade_sync_end, 
+				NULL
+			);
+		}
+	}
+	return TRUE;
+}
+
 BOOL crossfade_sync_register(HSTREAM handle) {
 	DWORD position;
 	for (position = 0; position < MAX_CHANNELS; position++) {
@@ -38,9 +58,27 @@ BOOL crossfade_sync_register(HSTREAM handle) {
 			continue;
 		}
 		syncs[position].handle = handle;
-		syncs[position].fade_in = BASS_ChannelSetSync(handle, BASS_SYNC_POS | BASS_SYNC_ONETIME, 0, &crossfade_sync_begin, NULL);
-		syncs[position].fade_out = BASS_ChannelSetSync(handle, BASS_SYNC_POS | BASS_SYNC_ONETIME, crossfade_sync_end_position(handle), &crossfade_sync_end, NULL);
-		syncs[position].free = BASS_ChannelSetSync(handle, BASS_SYNC_FREE | BASS_SYNC_ONETIME, 0, &crossfade_sync_free, NULL);
+		syncs[position].fade_in = BASS_ChannelSetSync(
+			handle,
+			BASS_SYNC_POS | BASS_SYNC_ONETIME,
+			0,
+			&crossfade_sync_begin,
+			NULL
+		);
+		syncs[position].fade_out = BASS_ChannelSetSync(
+			handle,
+			BASS_SYNC_POS | BASS_SYNC_ONETIME,
+			crossfade_sync_end_position(handle),
+			&crossfade_sync_end,
+			NULL)
+			;
+		syncs[position].free = BASS_ChannelSetSync(
+			handle,
+			BASS_SYNC_FREE | BASS_SYNC_ONETIME,
+			0,
+			&crossfade_sync_free,
+			NULL
+		);
 		return TRUE;
 	}
 	return FALSE;
