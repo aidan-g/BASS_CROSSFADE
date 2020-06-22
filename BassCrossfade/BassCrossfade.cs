@@ -80,6 +80,14 @@ namespace ManagedBass.Crossfade
         }
 
         [DllImport(DllName)]
+        static extern bool BASS_CROSSFADE_IsFading(int Handle);
+
+        public static bool IsFading(int Handle)
+        {
+            return BASS_CROSSFADE_IsFading(Handle);
+        }
+
+        [DllImport(DllName)]
         static extern bool BASS_CROSSFADE_FadeIn(int Handle);
 
         public static bool FadeIn(int Handle)

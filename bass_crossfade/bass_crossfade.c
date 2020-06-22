@@ -104,6 +104,10 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_ChannelRemove)(HSTREAM handle) {
 	return success;
 }
 
+BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_IsFading)(HSTREAM handle) {
+	return crossfade_sliding_volume(handle);
+}
+
 BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_FadeIn)(HSTREAM handle) {
 	return crossfade_slide_volume(handle, 1);
 }

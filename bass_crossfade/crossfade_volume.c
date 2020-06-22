@@ -1,5 +1,3 @@
-#include <math.h>
-
 #include "crossfade_volume.h"
 #include "crossfade_config.h"
 
@@ -7,6 +5,19 @@ typedef struct {
 	HSTREAM handle;
 	float value;
 } CF_HANDLER;
+
+static CF_HANDLER handlers[MAX_CHANNELS] = { 0 };
+
+BOOL crossfade_sliding_volume(HSTREAM handle) {
+	DWORD position = 0;
+	for (position = 0; position < MAX_CHANNELS; position++) {
+		if (handlers[position].handle != handle) {
+			continue;
+		}
+		return TRUE;
+	}
+	return FALSE;
+}
 
 BOOL crossfade_slide_volume_linear(HSTREAM handle, DWORD period, float value) {
 	FLOAT new_value;
@@ -77,22 +88,27 @@ DWORD WINAPI crossfade_slide_volume_handler(void* args) {
 		success = crossfade_slide_volume_exponential(handler->handle, period, handler->value);
 		break;
 	}
-	free(handler);
+	handler->handle = 0;
+	handler->value = 0;
 	return success;
 }
 
 BOOL crossfade_slide_volume(HSTREAM handle, float value) {
+	DWORD position = 0;
 	HANDLE thread;
-	CF_HANDLER* handler = malloc(sizeof(CF_HANDLER));
-	if (!handler) {
-		return FALSE;
+	for (position = 0; position < MAX_CHANNELS; position++) {
+		if (handlers[position].handle) {
+			continue;
+		}
+		handlers[position].handle = handle;
+		handlers[position].value = value;
+		thread = CreateThread(NULL, 0, &crossfade_slide_volume_handler, &handlers[position], 0, NULL);
+		if (!thread) {
+			handlers[position].handle = 0;
+			handlers[position].value = 0;
+			return FALSE;
+		}
+		return TRUE;
 	}
-	handler->handle = handle;
-	handler->value = value;
-	thread = CreateThread(NULL, 0, &crossfade_slide_volume_handler, handler, 0, NULL);
-	if (!thread) {
-		free(handler);
-		return FALSE;
-	}
-	return TRUE;
+	return FALSE;
 }
