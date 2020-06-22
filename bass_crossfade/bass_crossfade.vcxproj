@@ -36,7 +36,6 @@
     <ClInclude Include="crossfade_syncs.h" />
     <ClInclude Include="crossfade_volume.h" />
     <ClInclude Include="crossfade_queue.h" />
-    <ClInclude Include="queue.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bass_crossfade.c" />
@@ -45,7 +44,6 @@
     <ClCompile Include="crossfade_syncs.c" />
     <ClCompile Include="crossfade_volume.c" />
     <ClCompile Include="crossfade_queue.c" />
-    <ClCompile Include="queue.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

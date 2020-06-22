@@ -38,13 +38,16 @@ __declspec(dllexport)
 BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_GetConfig)(CF_ATTRIBUTE attrib, DWORD* value);
 
 __declspec(dllexport)
+HSTREAM BASSCROSSFADEDEF(BASS_CROSSFADE_StreamCreate)(DWORD freq, DWORD chans, DWORD flags, void* user);
+
+__declspec(dllexport)
 DWORD* BASSCROSSFADEDEF(BASS_CROSSFADE_GetChannels)(DWORD* count);
 
 __declspec(dllexport)
-BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_StreamEnqueue)(HSTREAM handle);
+BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_ChannelEnqueue)(HSTREAM handle);
 
 __declspec(dllexport)
-BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_StreamRemove)(HSTREAM handle);
+BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_ChannelRemove)(HSTREAM handle);
 
 __declspec(dllexport)
 BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_FadeIn)(HSTREAM handle);

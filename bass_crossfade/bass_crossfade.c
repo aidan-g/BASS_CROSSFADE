@@ -2,6 +2,7 @@
 #include <stdio.h>
 #endif
 
+#include "../bass/bassmix.h"
 #include "bass_crossfade.h"
 #include "crossfade_config.h"
 #include "crossfade_mixer.h"
@@ -22,9 +23,6 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_Init)() {
 	if (is_initialized) {
 		return FALSE;
 	}
-	if (!crossfade_queue_create()) {
-		return FALSE;
-	}
 	is_initialized = TRUE;
 #if _DEBUG
 	printf("BASS CROSSFADE initialized.\n");
@@ -36,9 +34,6 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_Free)() {
 	BOOL success = TRUE;
 	if (!is_initialized) {
 		success = FALSE;
-	}
-	else {
-		success &= crossfade_queue_free();
 	}
 	if (success) {
 		is_initialized = FALSE;
@@ -62,14 +57,28 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_GetConfig)(CF_ATTRIBUTE attrib, DWORD* valu
 	return crossfade_config_get(attrib, value);
 }
 
+HSTREAM BASSCROSSFADEDEF(BASS_CROSSFADE_StreamCreate)(DWORD freq, DWORD chans, DWORD flags, void* user) {
+	HSTREAM mixer = BASS_Mixer_StreamCreate(freq, chans, flags);
+	HSTREAM handle;
+	if (!mixer) {
+		return 0;
+	}
+	crossfade_config_set(CF_MIXER, mixer);
+	if (crossfade_queue_peek(&handle)) {
+		crossfade_queue_remove(handle);
+		crossfade_mixer_add(handle, FALSE);
+	}
+	return mixer;
+}
+
 DWORD* BASSCROSSFADEDEF(BASS_CROSSFADE_GetChannels)(DWORD* count) {
 	DWORD position;
 	DWORD mixer_count;
 	DWORD queue_count;
-	static HSTREAM handles[MAX_CHANNELS];
-	HSTREAM* mixer_handles = crossfade_mixer_get(&mixer_count);
-	HSTREAM* queue_handles = crossfade_mixer_get(&queue_count);
-	for (position = 0; position < mixer_count; position++, (*count)++) {
+	static HSTREAM handles[MAX_CHANNELS] = { 0 };
+	HSTREAM* mixer_handles = crossfade_mixer_get_all(&mixer_count);
+	HSTREAM* queue_handles = crossfade_queue_get_all(&queue_count);
+	for (position = 0, *count = 0; position < mixer_count; position++, (*count)++) {
 		handles[*count] = mixer_handles[position];
 	}
 	for (position = 0; position < queue_count; position++, (*count)++) {
@@ -78,12 +87,21 @@ DWORD* BASSCROSSFADEDEF(BASS_CROSSFADE_GetChannels)(DWORD* count) {
 	return handles;
 }
 
-BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_StreamEnqueue)(HSTREAM handle) {
-	return crossfade_mixer_add(handle, FALSE) || crossfade_sync_register(handle);
+BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_ChannelEnqueue)(HSTREAM handle) {
+	if (!BASS_ChannelSetAttribute(handle, BASS_ATTRIB_VOL, 0)) {
+		return FALSE;
+	}
+	if (!crossfade_sync_register(handle)) {
+		return FALSE;
+	}
+	return crossfade_mixer_add(handle, FALSE) || crossfade_queue_add(handle);
 }
 
-BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_StreamRemove)(HSTREAM handle) {
-	return crossfade_mixer_remove(handle) || crossfade_sync_unregister(handle);
+BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_ChannelRemove)(HSTREAM handle) {
+	BOOL success = TRUE;
+	success &= crossfade_sync_unregister(handle);
+	success &= crossfade_mixer_remove(handle) || crossfade_queue_remove(handle);
+	return success;
 }
 
 BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_FadeIn)(HSTREAM handle) {

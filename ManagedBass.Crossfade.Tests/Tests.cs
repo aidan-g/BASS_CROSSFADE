@@ -42,17 +42,34 @@ namespace ManagedBass.Crossfade.Tests
                 Assert.Fail(string.Format("Failed to get channel info: {0}", Enum.GetName(typeof(Errors), Bass.LastError)));
             }
 
-            var playbackChannel = BassMix.CreateMixerStream(channelInfo.Frequency, channelInfo.Channels, BassFlags.Default | BassFlags.Float);
-            if (playbackChannel == 0)
+            if (!BassCrossfade.ChannelEnqueue(sourceChannel1))
             {
-                Assert.Fail(string.Format("Failed to create mixer stream: {0}", Enum.GetName(typeof(Errors), Bass.LastError)));
+                Assert.Fail("Failed to add stream to crossfade queue.");
             }
 
-            var crossfade = new BassCrossfade(playbackChannel);
-            crossfade.Add(sourceChannel1);
-            crossfade.Add(sourceChannel2);
+            if (!BassCrossfade.ChannelEnqueue(sourceChannel2))
+            {
+                Assert.Fail("Failed to add stream to crossfade queue.");
+            }
 
-            Assert.AreEqual(1, crossfade.Queue.Count, "Expected 1 queued stream.");
+            var sourceChannelCount = default(int);
+            var sourceChannels = BassCrossfade.GetChannels(out sourceChannelCount);
+
+            if (sourceChannelCount != 2)
+            {
+                Assert.Fail("Crossfade reports unexpected queued channel count.");
+            }
+
+            if (sourceChannels[0] != sourceChannel1 || sourceChannels[1] != sourceChannel2)
+            {
+                Assert.Fail("Crossfade reports unexpected queued channel handles.");
+            }
+
+            var playbackChannel = BassCrossfade.StreamCreate(channelInfo.Frequency, channelInfo.Channels, BassFlags.Default | BassFlags.Float);
+            if (playbackChannel == 0)
+            {
+                Assert.Fail(string.Format("Failed to create playback stream: {0}", Enum.GetName(typeof(Errors), Bass.LastError)));
+            }
 
             if (!Bass.ChannelPlay(playbackChannel))
             {
@@ -83,12 +100,12 @@ namespace ManagedBass.Crossfade.Tests
                 Thread.Sleep(1000);
             } while (true);
 
-            if (!BassCrossfade.StreamUnregister(sourceChannel1))
+            if (!BassCrossfade.ChannelRemove(sourceChannel1))
             {
                 Assert.Fail("Registered channel should have been removed.");
             }
 
-            if (!BassCrossfade.StreamUnregister(sourceChannel2))
+            if (!BassCrossfade.ChannelRemove(sourceChannel2))
             {
                 Assert.Fail("Registered channel should have been removed.");
             }

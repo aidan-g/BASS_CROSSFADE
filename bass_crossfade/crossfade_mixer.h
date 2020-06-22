@@ -1,6 +1,6 @@
 #include "../bass/bass.h"
 
-HSTREAM* crossfade_mixer_get(DWORD* count);
+HSTREAM* crossfade_mixer_get_all(DWORD* count);
 
 BOOL crossfade_mixer_add(HSTREAM handle, BOOL force);
 

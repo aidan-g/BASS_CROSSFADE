@@ -3,15 +3,16 @@
 #include "crossfade_mixer.h"
 #include "crossfade_queue.h"
 
-HSTREAM* crossfade_mixer_get(DWORD* count) {
+BOOL crossfade_mixer_get(HSTREAM* handle) {
+	return crossfade_config_get(CF_MIXER, handle);
+}
+
+HSTREAM* crossfade_mixer_get_all(DWORD* count) {
 	HSTREAM mixer;
-	static HSTREAM handles[MAX_CHANNELS];
-	crossfade_config_get(CF_MIXER, mixer);
-	if (mixer) {
-		return TRUE;
-	}
-	else {
-		return FALSE;
+	static HSTREAM handles[MAX_CHANNELS] = { 0 };
+	if (!crossfade_mixer_get(&mixer)) {
+		*count = 0;
+		return NULL;
 	}
 	*count = BASS_Mixer_StreamGetChannels(mixer, handles, MAX_CHANNELS);
 	return handles;
@@ -20,16 +21,14 @@ HSTREAM* crossfade_mixer_get(DWORD* count) {
 BOOL crossfade_mixer_add(HSTREAM handle, BOOL force) {
 	HSTREAM mixer;
 	DWORD count;
-	crossfade_config_get(CF_MIXER, mixer);
-	if (mixer) {
-		return TRUE;
-	}
-	else {
+	if (!crossfade_mixer_get(&mixer)) {
 		return FALSE;
 	}
-	count = BASS_Mixer_StreamGetChannels(handle, NULL, 0);
-	if (count) {
-		return FALSE;
+	if (!force) {
+		count = BASS_Mixer_StreamGetChannels(mixer, NULL, 0);
+		if (count) {
+			return FALSE;
+		}
 	}
 	return BASS_Mixer_StreamAddChannel(mixer, handle, 0);
 }
@@ -40,8 +39,9 @@ BOOL crossfade_mixer_remove(HSTREAM handle) {
 
 BOOL crossfade_mixer_next() {
 	HSTREAM handle;
-	if (!crossfade_queue_dequeue(&handle)) {
+	if (!crossfade_queue_peek(&handle)) {
 		return FALSE;
 	}
+	crossfade_queue_remove(handle);
 	return crossfade_mixer_add(handle, TRUE);
 }

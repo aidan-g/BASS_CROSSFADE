@@ -7,56 +7,6 @@ namespace ManagedBass.Crossfade
     {
         const string DllName = "bass_crossfade";
 
-        public static readonly object SyncRoot = new object();
-
-        public BassCrossfade(int channelHandle)
-        {
-            this.ChannelHandle = channelHandle;
-        }
-
-        public int ChannelHandle { get; private set; }
-
-        public bool Contains(int channelHandle)
-        {
-            lock (SyncRoot)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public int Position(int channelHandle)
-        {
-            lock (SyncRoot)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public bool Add(int channelHandle)
-        {
-            lock (SyncRoot)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public bool Remove(int channelHandle)
-        {
-            lock (SyncRoot)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public void Reset()
-        {
-            lock (SyncRoot)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-
         [DllImport(DllName)]
         static extern bool BASS_CROSSFADE_Init();
 
@@ -95,6 +45,14 @@ namespace ManagedBass.Crossfade
         }
 
         [DllImport(DllName)]
+        static extern int BASS_CROSSFADE_StreamCreate(int Frequency, int Channels, BassFlags Flags, IntPtr User = default(IntPtr));
+
+        public static int StreamCreate(int Frequency, int Channels, BassFlags Flags, IntPtr User = default(IntPtr))
+        {
+            return BASS_CROSSFADE_StreamCreate(Frequency, Channels, Flags, User);
+        }
+
+        [DllImport(DllName)]
         static extern IntPtr BASS_CROSSFADE_GetChannels(out int Count);
 
         public static int[] GetChannels(out int Count)
@@ -106,19 +64,19 @@ namespace ManagedBass.Crossfade
         }
 
         [DllImport(DllName)]
-        static extern bool BASS_CROSSFADE_StreamEnqueue(int Handle);
+        static extern bool BASS_CROSSFADE_ChannelEnqueue(int Handle);
 
-        public static bool StreamEnqueue(int Handle)
+        public static bool ChannelEnqueue(int Handle)
         {
-            return BASS_CROSSFADE_StreamEnqueue(Handle);
+            return BASS_CROSSFADE_ChannelEnqueue(Handle);
         }
 
         [DllImport(DllName)]
-        static extern bool BASS_CROSSFADE_StreamRemove(int Handle);
+        static extern bool BASS_CROSSFADE_ChannelRemove(int Handle);
 
-        public static bool StreamRemove(int Handle)
+        public static bool ChannelRemove(int Handle)
         {
-            return BASS_CROSSFADE_StreamRemove(Handle);
+            return BASS_CROSSFADE_ChannelRemove(Handle);
         }
 
         [DllImport(DllName)]
