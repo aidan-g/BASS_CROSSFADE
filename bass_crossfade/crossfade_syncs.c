@@ -25,17 +25,10 @@ void CALLBACK crossfade_sync_free(HSYNC handle, DWORD channel, DWORD data, void*
 	crossfade_sync_unregister(channel);
 }
 
-DWORD crossfade_sync_period() {
+QWORD crossfade_sync_end_position(HSTREAM handle) {
 	DWORD period;
 	crossfade_config_get(CF_PERIOD, &period);
-	if (!period) {
-		period = DEFAULT_PERIOD;
-	}
-	return period;
-}
-
-QWORD crossfade_sync_end_position(HSTREAM handle) {
-	return BASS_ChannelGetLength(handle, BASS_POS_BYTE) - BASS_ChannelSeconds2Bytes(handle, crossfade_sync_period() / 1000);
+	return BASS_ChannelGetLength(handle, BASS_POS_BYTE) - BASS_ChannelSeconds2Bytes(handle, period / 1000);
 }
 
 BOOL crossfade_sync_register(HSTREAM handle) {

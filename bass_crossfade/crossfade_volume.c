@@ -1,5 +1,11 @@
+#include <math.h>
+
 #include "crossfade_volume.h"
 #include "crossfade_config.h"
+
+#define BASS_SLIDE_LOG 0x10000
+
+typedef float (CALLBACK CURVEPROC)(float value);
 
 typedef struct {
 	HSTREAM handle;
@@ -19,31 +25,67 @@ BOOL crossfade_sliding_volume(HSTREAM handle) {
 	return FALSE;
 }
 
-BOOL crossfade_slide_volume_linear(HSTREAM handle, DWORD period, float value) {
-	FLOAT new_value;
-	FLOAT current_value;
-	FLOAT step;
-	if (!BASS_ChannelGetAttribute(handle, BASS_ATTRIB_VOL, &current_value)) {
-		return FALSE;
+float CALLBACK crossfade_curve_linear(float value) {
+	return value;
+}
+
+float CALLBACK crossfade_curve_logarithmic(float value) {
+	return value * 2;
+}
+
+float CALLBACK crossfade_curve_exponential(float value) {
+	return value * value;
+}
+
+float CALLBACK crossfade_curve_ease_in(float value) {
+	return powf(value, 1.7f);
+}
+
+float CALLBACK crossfade_curve_ease_out(float value) {
+	return powf(value, 0.48f);
+}
+
+BOOL crossfade_generate_curve(DWORD period, float min, float max, float* curve) {
+	DWORD type;
+	CURVEPROC* proc;
+	float step;
+	float diff;
+	float value;
+	DWORD position;
+	crossfade_config_get(CF_TYPE, &type);
+	switch (type)
+	{
+	default:
+	case CF_LINEAR:
+		proc = &crossfade_curve_linear;
+		break;
+	case CF_LOGARITHMIC:
+		proc = &crossfade_curve_logarithmic;
+		break;
+	case CF_EXPONENTIAL:
+		proc = &crossfade_curve_exponential;
+		break;
+	case CF_EASE_IN:
+		proc = &crossfade_curve_ease_in;
+		break;
+	case CF_EASE_OUT:
+		proc = &crossfade_curve_ease_out;
+		break;
 	}
-	if (current_value == value) {
-		return TRUE;
+	step = 1 / (float)period;
+	diff = max - min;
+	for (value = step, position = 0; value <= 1; value += step, position++) {
+		curve[position] = min + (diff * proc(value));
 	}
-	step = (current_value - value) / period;
-	for (new_value = current_value; new_value != value;) {
-		if (new_value < value) {
-			new_value -= step;
-			if (new_value > value) {
-				new_value = value;
-			}
-		}
-		else if (new_value > value) {
-			new_value -= step;
-			if (new_value < value) {
-				new_value = value;
-			}
-		}
-		if (!BASS_ChannelSetAttribute(handle, BASS_ATTRIB_VOL, new_value)) {
+	curve[0] = min;
+	curve[period - 1] = max;
+	return TRUE;
+}
+
+BOOL crossfade_apply_curve(HSTREAM handle, DWORD period, float* curve) {
+	DWORD position;
+	for (position = 0; position < period; position++) {
+		if (!BASS_ChannelSetAttribute(handle, BASS_ATTRIB_VOL, curve[position])) {
 			return FALSE;
 		}
 		Sleep(1);
@@ -51,42 +93,24 @@ BOOL crossfade_slide_volume_linear(HSTREAM handle, DWORD period, float value) {
 	return TRUE;
 }
 
-BOOL crossfade_slide_volume_logarithmic(HSTREAM handle, DWORD period, float value) {
-	return FALSE;
-}
-
-BOOL crossfade_slide_volume_exponential(HSTREAM handle, DWORD period, float value) {
-	return FALSE;
-}
-
 DWORD WINAPI crossfade_slide_volume_handler(void* args) {
 	DWORD period;
-	DWORD type;
+	float value;
+	float* curve;
 	BOOL success;
 	CF_HANDLER* handler = args;
 	if (!handler) {
 		return FALSE;
 	}
-	crossfade_config_get(CF_PERIOD, &period);
-	if (!period) {
-		period = DEFAULT_PERIOD;
+	if (BASS_ChannelGetAttribute(handler->handle, BASS_ATTRIB_VOL, &value)) {
+		crossfade_config_get(CF_PERIOD, &period);
+		curve = malloc(sizeof(float) * period);
+		success =
+			crossfade_generate_curve(period, value, handler->value, curve) &&
+			crossfade_apply_curve(handler->handle, period, curve);
 	}
-	crossfade_config_get(CF_TYPE, &type);
-	if (!type) {
-		type = DEFAULT_TYPE;
-	}
-	switch (type)
-	{
-	default:
-	case CF_LINEAR:
-		success = crossfade_slide_volume_linear(handler->handle, period, handler->value);
-		break;
-	case CF_LOGARITHMIC:
-		success = crossfade_slide_volume_logarithmic(handler->handle, period, handler->value);
-		break;
-	case CF_EXPONENTIAL:
-		success = crossfade_slide_volume_exponential(handler->handle, period, handler->value);
-		break;
+	else {
+		success = FALSE;
 	}
 	handler->handle = 0;
 	handler->value = 0;

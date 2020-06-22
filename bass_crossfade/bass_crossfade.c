@@ -23,6 +23,8 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_Init)() {
 	if (is_initialized) {
 		return FALSE;
 	}
+	crossfade_config_set(CF_PERIOD, 2000);
+	crossfade_config_set(CF_TYPE, CF_LINEAR);
 	is_initialized = TRUE;
 #if _DEBUG
 	printf("BASS CROSSFADE initialized.\n");

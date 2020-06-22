@@ -5,7 +5,45 @@ namespace ManagedBass.Crossfade
 {
     public class BassCrossfade
     {
+        const int DEFAULT_PERIOD = 2000;
+
+        const BassCrossfadeType DEFAULT_TYPE = BassCrossfadeType.Linear;
+
         const string DllName = "bass_crossfade";
+
+        public static int Period
+        {
+            get
+            {
+                var period = default(int);
+                if (!GetConfig(BassCrossfadeAttribute.Period, out period))
+                {
+                    return DEFAULT_PERIOD;
+                }
+                return period;
+            }
+            set
+            {
+                SetConfig(BassCrossfadeAttribute.Period, value);
+            }
+        }
+
+        public static BassCrossfadeType Type
+        {
+            get
+            {
+                var type = default(int);
+                if (!GetConfig(BassCrossfadeAttribute.Type, out type))
+                {
+                    return DEFAULT_TYPE;
+                }
+                return (BassCrossfadeType)type;
+            }
+            set
+            {
+                SetConfig(BassCrossfadeAttribute.Type, Convert.ToInt32(value));
+            }
+        }
 
         [DllImport(DllName)]
         static extern bool BASS_CROSSFADE_Init();
@@ -29,11 +67,6 @@ namespace ManagedBass.Crossfade
         public static bool SetConfig(BassCrossfadeAttribute Attrib, int Value)
         {
             return BASS_CROSSFADE_SetConfig(Attrib, Value);
-        }
-
-        public static bool SetConfig(BassCrossfadeAttribute Attrib, bool Value)
-        {
-            return BASS_CROSSFADE_SetConfig(Attrib, Value ? 1 : 0);
         }
 
         [DllImport(DllName)]
@@ -117,6 +150,8 @@ namespace ManagedBass.Crossfade
         None = 0,
         Linear = 1,
         Logarithmic = 2,
-        Exponential = 3
+        Exponential = 3,
+        EaseIn = 4,
+        EaseOut = 5
     }
 }

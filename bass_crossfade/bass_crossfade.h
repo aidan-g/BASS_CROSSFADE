@@ -9,10 +9,6 @@
 
 #define MAX_CHANNELS 10
 
-#define DEFAULT_PERIOD 2000
-
-#define DEFAULT_TYPE 1
-
 typedef enum {
 	CF_MIXER = 1,
 	CF_PERIOD = 2,
@@ -22,7 +18,9 @@ typedef enum {
 typedef enum {
 	CF_LINEAR = 1,
 	CF_LOGARITHMIC = 2,
-	CF_EXPONENTIAL = 3
+	CF_EXPONENTIAL = 3,
+	CF_EASE_IN = 4,
+	CF_EASE_OUT = 5
 };
 
 __declspec(dllexport)

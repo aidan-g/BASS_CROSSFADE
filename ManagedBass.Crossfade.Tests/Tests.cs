@@ -11,8 +11,17 @@ namespace ManagedBass.Crossfade.Tests
     {
         private static readonly string Location = Path.GetDirectoryName(typeof(Tests).Assembly.Location);
 
-        [Test]
-        public void Test001()
+        [TestCase(1000, BassCrossfadeType.Linear)]
+        [TestCase(2000, BassCrossfadeType.Linear)]
+        [TestCase(1000, BassCrossfadeType.Logarithmic)]
+        [TestCase(2000, BassCrossfadeType.Logarithmic)]
+        [TestCase(1000, BassCrossfadeType.Exponential)]
+        [TestCase(2000, BassCrossfadeType.Exponential)]
+        [TestCase(1000, BassCrossfadeType.EaseIn)]
+        [TestCase(2000, BassCrossfadeType.EaseIn)]
+        [TestCase(1000, BassCrossfadeType.EaseOut)]
+        [TestCase(2000, BassCrossfadeType.EaseOut)]
+        public void Test001(int period, BassCrossfadeType type)
         {
             if (!Bass.Init(Bass.DefaultDevice))
             {
@@ -23,6 +32,9 @@ namespace ManagedBass.Crossfade.Tests
             {
                 Assert.Fail("Failed to initialize CROSSFADE.");
             }
+
+            BassCrossfade.Period = period;
+            BassCrossfade.Type = type;
 
             var sourceChannel1 = Bass.CreateStream(Path.Combine(Location, "Media", "01 Botanical Dimensions.m4a"), 0, 0, BassFlags.Decode | BassFlags.Float);
             if (sourceChannel1 == 0)
