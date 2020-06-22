@@ -27,7 +27,7 @@ void CALLBACK crossfade_sync_free(HSYNC handle, DWORD channel, DWORD data, void*
 
 QWORD crossfade_sync_end_position(HSTREAM handle) {
 	DWORD period;
-	crossfade_config_get(CF_PERIOD, &period);
+	crossfade_config_get(CF_OUT_PERIOD, &period);
 	return BASS_ChannelGetLength(handle, BASS_POS_BYTE) - BASS_ChannelSeconds2Bytes(handle, period / 1000);
 }
 

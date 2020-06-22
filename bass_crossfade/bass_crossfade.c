@@ -23,8 +23,11 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_Init)() {
 	if (is_initialized) {
 		return FALSE;
 	}
-	crossfade_config_set(CF_PERIOD, 2000);
-	crossfade_config_set(CF_TYPE, CF_LINEAR);
+	crossfade_config_set(CF_MODE, CF_ALWAYS);
+	crossfade_config_set(CF_IN_PERIOD, 100);
+	crossfade_config_set(CF_OUT_PERIOD, 100);
+	crossfade_config_set(CF_IN_TYPE, CF_EASE_IN);
+	crossfade_config_set(CF_OUT_TYPE, CF_EASE_IN);
 	is_initialized = TRUE;
 #if _DEBUG
 	printf("BASS CROSSFADE initialized.\n");
@@ -107,13 +110,13 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_ChannelRemove)(HSTREAM handle) {
 }
 
 BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_IsFading)(HSTREAM handle) {
-	return crossfade_sliding_volume(handle);
+	return crossfade_fading(handle);
 }
 
 BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_FadeIn)(HSTREAM handle) {
-	return crossfade_slide_volume(handle, 1);
+	return crossfade_fade_in(handle, 1);
 }
 
 BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_FadeOut)(HSTREAM handle) {
-	return crossfade_slide_volume(handle, 0);
+	return crossfade_fade_out(handle, 0);
 }

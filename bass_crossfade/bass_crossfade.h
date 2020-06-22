@@ -11,9 +11,17 @@
 
 typedef enum {
 	CF_MIXER = 1,
-	CF_PERIOD = 2,
-	CF_TYPE = 3
+	CF_MODE = 2,
+	CF_IN_PERIOD = 3,
+	CF_OUT_PERIOD = 4,
+	CF_IN_TYPE = 5,
+	CF_OUT_TYPE = 6
 } CF_ATTRIBUTE;
+
+typedef enum {
+	CF_ALWAYS = 1,
+	CF_MANUAL = 2
+};
 
 typedef enum {
 	CF_LINEAR = 1,

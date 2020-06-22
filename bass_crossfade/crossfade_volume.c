@@ -9,12 +9,14 @@ typedef float (CALLBACK CURVEPROC)(float value);
 
 typedef struct {
 	HSTREAM handle;
+	DWORD period;
+	DWORD type;
 	float value;
 } CF_HANDLER;
 
 static CF_HANDLER handlers[MAX_CHANNELS] = { 0 };
 
-BOOL crossfade_sliding_volume(HSTREAM handle) {
+BOOL crossfade_fading(HSTREAM handle) {
 	DWORD position = 0;
 	for (position = 0; position < MAX_CHANNELS; position++) {
 		if (handlers[position].handle != handle) {
@@ -45,14 +47,12 @@ float CALLBACK crossfade_curve_ease_out(float value) {
 	return powf(value, 0.48f);
 }
 
-BOOL crossfade_generate_curve(DWORD period, float min, float max, float* curve) {
-	DWORD type;
+BOOL crossfade_generate_curve(DWORD period, DWORD type, float min, float max, float* curve) {
 	CURVEPROC* proc;
 	float step;
 	float diff;
 	float value;
 	DWORD position;
-	crossfade_config_get(CF_TYPE, &type);
 	switch (type)
 	{
 	default:
@@ -94,7 +94,6 @@ BOOL crossfade_apply_curve(HSTREAM handle, DWORD period, float* curve) {
 }
 
 DWORD WINAPI crossfade_slide_volume_handler(void* args) {
-	DWORD period;
 	float value;
 	float* curve;
 	BOOL success;
@@ -103,21 +102,23 @@ DWORD WINAPI crossfade_slide_volume_handler(void* args) {
 		return FALSE;
 	}
 	if (BASS_ChannelGetAttribute(handler->handle, BASS_ATTRIB_VOL, &value)) {
-		crossfade_config_get(CF_PERIOD, &period);
-		curve = malloc(sizeof(float) * period);
+
+		curve = malloc(sizeof(float) * handler->period);
 		success =
-			crossfade_generate_curve(period, value, handler->value, curve) &&
-			crossfade_apply_curve(handler->handle, period, curve);
+			crossfade_generate_curve(handler->period, handler->type, value, handler->value, curve) &&
+			crossfade_apply_curve(handler->handle, handler->period, curve);
 	}
 	else {
 		success = FALSE;
 	}
 	handler->handle = 0;
+	handler->period = 0;
+	handler->type = 0;
 	handler->value = 0;
 	return success;
 }
 
-BOOL crossfade_slide_volume(HSTREAM handle, float value) {
+BOOL crossfade_slide_volume(HSTREAM handle, DWORD period, DWORD type, float value) {
 	DWORD position = 0;
 	HANDLE thread;
 	for (position = 0; position < MAX_CHANNELS; position++) {
@@ -125,14 +126,36 @@ BOOL crossfade_slide_volume(HSTREAM handle, float value) {
 			continue;
 		}
 		handlers[position].handle = handle;
+		handlers[position].period = period;
+		handlers[position].type = type;
 		handlers[position].value = value;
 		thread = CreateThread(NULL, 0, &crossfade_slide_volume_handler, &handlers[position], 0, NULL);
 		if (!thread) {
 			handlers[position].handle = 0;
+			handlers[position].period = 0;
+			handlers[position].type = 0;
 			handlers[position].value = 0;
 			return FALSE;
 		}
 		return TRUE;
 	}
 	return FALSE;
+}
+
+BOOL crossfade_fade_in(HSTREAM handle) {
+	DWORD period;
+	DWORD type;
+	float value = 1;
+	crossfade_config_get(CF_IN_PERIOD, &period);
+	crossfade_config_get(CF_IN_TYPE, &type);
+	return crossfade_slide_volume(handle, period, type, value);
+}
+
+BOOL crossfade_fade_out(HSTREAM handle) {
+	DWORD period;
+	DWORD type;
+	float value = 0;
+	crossfade_config_get(CF_OUT_PERIOD, &period);
+	crossfade_config_get(CF_OUT_TYPE, &type);
+	return crossfade_slide_volume(handle, period, type, value);
 }

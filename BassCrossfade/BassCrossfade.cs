@@ -5,18 +5,37 @@ namespace ManagedBass.Crossfade
 {
     public class BassCrossfade
     {
-        const int DEFAULT_PERIOD = 2000;
+        const BassCrossfadeMode DEFAULT_MODE = BassCrossfadeMode.Always;
 
-        const BassCrossfadeType DEFAULT_TYPE = BassCrossfadeType.Linear;
+        const int DEFAULT_PERIOD = 100;
+
+        const BassCrossfadeType DEFAULT_TYPE = BassCrossfadeType.EaseIn;
 
         const string DllName = "bass_crossfade";
 
-        public static int Period
+        public static BassCrossfadeMode Mode
+        {
+            get
+            {
+                var mode = default(int);
+                if (!GetConfig(BassCrossfadeAttribute.Mode, out mode))
+                {
+                    return DEFAULT_MODE;
+                }
+                return (BassCrossfadeMode)mode;
+            }
+            set
+            {
+                SetConfig(BassCrossfadeAttribute.Mode, Convert.ToInt32(value));
+            }
+        }
+
+        public static int InPeriod
         {
             get
             {
                 var period = default(int);
-                if (!GetConfig(BassCrossfadeAttribute.Period, out period))
+                if (!GetConfig(BassCrossfadeAttribute.InPeriod, out period))
                 {
                     return DEFAULT_PERIOD;
                 }
@@ -24,16 +43,33 @@ namespace ManagedBass.Crossfade
             }
             set
             {
-                SetConfig(BassCrossfadeAttribute.Period, value);
+                SetConfig(BassCrossfadeAttribute.InPeriod, value);
             }
         }
 
-        public static BassCrossfadeType Type
+        public static int OutPeriod
+        {
+            get
+            {
+                var period = default(int);
+                if (!GetConfig(BassCrossfadeAttribute.OutPeriod, out period))
+                {
+                    return DEFAULT_PERIOD;
+                }
+                return period;
+            }
+            set
+            {
+                SetConfig(BassCrossfadeAttribute.OutPeriod, value);
+            }
+        }
+
+        public static BassCrossfadeType InType
         {
             get
             {
                 var type = default(int);
-                if (!GetConfig(BassCrossfadeAttribute.Type, out type))
+                if (!GetConfig(BassCrossfadeAttribute.InType, out type))
                 {
                     return DEFAULT_TYPE;
                 }
@@ -41,7 +77,24 @@ namespace ManagedBass.Crossfade
             }
             set
             {
-                SetConfig(BassCrossfadeAttribute.Type, Convert.ToInt32(value));
+                SetConfig(BassCrossfadeAttribute.InType, Convert.ToInt32(value));
+            }
+        }
+
+        public static BassCrossfadeType OutType
+        {
+            get
+            {
+                var type = default(int);
+                if (!GetConfig(BassCrossfadeAttribute.OutType, out type))
+                {
+                    return DEFAULT_TYPE;
+                }
+                return (BassCrossfadeType)type;
+            }
+            set
+            {
+                SetConfig(BassCrossfadeAttribute.OutType, Convert.ToInt32(value));
             }
         }
 
@@ -141,8 +194,18 @@ namespace ManagedBass.Crossfade
     {
         None = 0,
         Mixer = 1,
-        Period = 2,
-        Type = 3
+        Mode = 2,
+        InPeriod = 3,
+        OutPeriod = 4,
+        InType = 5,
+        OutType = 6
+    }
+
+    public enum BassCrossfadeMode
+    {
+        None = 0,
+        Always = 1,
+        Manual = 2
     }
 
     public enum BassCrossfadeType

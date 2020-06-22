@@ -1,5 +1,4 @@
-﻿using ManagedBass.Mix;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using System;
 using System.IO;
 using System.Threading;
@@ -11,17 +10,10 @@ namespace ManagedBass.Crossfade.Tests
     {
         private static readonly string Location = Path.GetDirectoryName(typeof(Tests).Assembly.Location);
 
-        [TestCase(1000, BassCrossfadeType.Linear)]
-        [TestCase(2000, BassCrossfadeType.Linear)]
-        [TestCase(1000, BassCrossfadeType.Logarithmic)]
-        [TestCase(2000, BassCrossfadeType.Logarithmic)]
-        [TestCase(1000, BassCrossfadeType.Exponential)]
-        [TestCase(2000, BassCrossfadeType.Exponential)]
-        [TestCase(1000, BassCrossfadeType.EaseIn)]
-        [TestCase(2000, BassCrossfadeType.EaseIn)]
-        [TestCase(1000, BassCrossfadeType.EaseOut)]
-        [TestCase(2000, BassCrossfadeType.EaseOut)]
-        public void Test001(int period, BassCrossfadeType type)
+
+        [TestCase(BassCrossfadeMode.Always, 100, 100, BassCrossfadeType.EaseOut, BassCrossfadeType.EaseIn)]
+        [TestCase(BassCrossfadeMode.Always, 100, 100, BassCrossfadeType.Logarithmic, BassCrossfadeType.Exponential)]
+        public void Test001(BassCrossfadeMode mode, int inPeriod, int outPeriod, BassCrossfadeType inType, BassCrossfadeType outType)
         {
             if (!Bass.Init(Bass.DefaultDevice))
             {
@@ -33,8 +25,11 @@ namespace ManagedBass.Crossfade.Tests
                 Assert.Fail("Failed to initialize CROSSFADE.");
             }
 
-            BassCrossfade.Period = period;
-            BassCrossfade.Type = type;
+            BassCrossfade.Mode = mode;
+            BassCrossfade.InPeriod = inPeriod;
+            BassCrossfade.OutPeriod = outPeriod;
+            BassCrossfade.InType = inType;
+            BassCrossfade.OutType = outType;
 
             var sourceChannel1 = Bass.CreateStream(Path.Combine(Location, "Media", "01 Botanical Dimensions.m4a"), 0, 0, BassFlags.Decode | BassFlags.Float);
             if (sourceChannel1 == 0)
