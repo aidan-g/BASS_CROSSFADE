@@ -54,8 +54,14 @@ BOOL crossfade_mixer_add(HSTREAM handle) {
 }
 
 BOOL crossfade_mixer_wait(HSTREAM handle) {
+	DWORD buffer = BASS_GetConfig(BASS_CONFIG_BUFFER);
 	while (BASS_Mixer_ChannelGetMixer(handle)) {
 		Sleep(10);
+	}
+	//This seems dumb but I can't get a smooth fade out otherwise.
+	//Seems removing a stream from the mixer removes unplayed data from the buffers.
+	if (buffer > 0) {
+		Sleep(buffer);
 	}
 	return TRUE;
 }
