@@ -34,7 +34,7 @@
     <ClInclude Include="crossfade_config.h" />
     <ClInclude Include="crossfade_mixer.h" />
     <ClInclude Include="crossfade_syncs.h" />
-    <ClInclude Include="crossfade_volume.h" />
+    <ClInclude Include="crossfade_envelope.h" />
     <ClInclude Include="crossfade_queue.h" />
   </ItemGroup>
   <ItemGroup>
@@ -42,7 +42,7 @@
     <ClCompile Include="crossfade_config.c" />
     <ClCompile Include="crossfade_mixer.c" />
     <ClCompile Include="crossfade_syncs.c" />
-    <ClCompile Include="crossfade_volume.c" />
+    <ClCompile Include="crossfade_envelope.c" />
     <ClCompile Include="crossfade_queue.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

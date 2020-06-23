@@ -5,12 +5,14 @@ VisualStudioVersion = 16.0.30204.135
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bass_crossfade", "bass_crossfade\bass_crossfade.vcxproj", "{E612BC45-E1B1-4F71-8DCC-60ECC41B7596}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagedBass.Crossfade", "BassCrossfade\ManagedBass.Crossfade.csproj", "{65AD9FA6-88BF-416C-98E2-E2B0E565EB35}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManagedBass.Crossfade", "BassCrossfade\ManagedBass.Crossfade.csproj", "{65AD9FA6-88BF-416C-98E2-E2B0E565EB35}"
 	ProjectSection(ProjectDependencies) = postProject
 		{E612BC45-E1B1-4F71-8DCC-60ECC41B7596} = {E612BC45-E1B1-4F71-8DCC-60ECC41B7596}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagedBass.Crossfade.Tests", "ManagedBass.Crossfade.Tests\ManagedBass.Crossfade.Tests.csproj", "{1B0FB511-351D-4F84-B4D9-436EDBEE019A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManagedBass.Crossfade.Tests", "ManagedBass.Crossfade.Tests\ManagedBass.Crossfade.Tests.csproj", "{1B0FB511-351D-4F84-B4D9-436EDBEE019A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "test\test.vcxproj", "{942ACB61-F109-4456-B903-645BF41E7767}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,6 +46,14 @@ Global
 		{1B0FB511-351D-4F84-B4D9-436EDBEE019A}.Release|x64.Build.0 = Release|x64
 		{1B0FB511-351D-4F84-B4D9-436EDBEE019A}.Release|x86.ActiveCfg = Release|x86
 		{1B0FB511-351D-4F84-B4D9-436EDBEE019A}.Release|x86.Build.0 = Release|x86
+		{942ACB61-F109-4456-B903-645BF41E7767}.Debug|x64.ActiveCfg = Debug|x64
+		{942ACB61-F109-4456-B903-645BF41E7767}.Debug|x64.Build.0 = Debug|x64
+		{942ACB61-F109-4456-B903-645BF41E7767}.Debug|x86.ActiveCfg = Debug|Win32
+		{942ACB61-F109-4456-B903-645BF41E7767}.Debug|x86.Build.0 = Debug|Win32
+		{942ACB61-F109-4456-B903-645BF41E7767}.Release|x64.ActiveCfg = Release|x64
+		{942ACB61-F109-4456-B903-645BF41E7767}.Release|x64.Build.0 = Release|x64
+		{942ACB61-F109-4456-B903-645BF41E7767}.Release|x86.ActiveCfg = Release|Win32
+		{942ACB61-F109-4456-B903-645BF41E7767}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

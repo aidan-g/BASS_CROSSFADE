@@ -56,13 +56,4 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_ChannelEnqueue)(HSTREAM handle);
 __declspec(dllexport)
 BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_ChannelRemove)(HSTREAM handle);
 
-__declspec(dllexport)
-BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_IsFading)(HSTREAM handle);
-
-__declspec(dllexport)
-BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_FadeIn)(HSTREAM handle);
-
-__declspec(dllexport)
-BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_FadeOut)(HSTREAM handle);
-
 #endif

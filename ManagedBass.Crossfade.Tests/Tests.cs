@@ -110,9 +110,9 @@ namespace ManagedBass.Crossfade.Tests
                 Thread.Sleep(1000);
             } while (true);
 
-            if (!BassCrossfade.ChannelRemove(sourceChannel1))
+            if (BassCrossfade.ChannelRemove(sourceChannel1))
             {
-                Assert.Fail("Registered channel should have been removed.");
+                Assert.Fail("Registered channel should have not been removed.");
             }
 
             if (!BassCrossfade.ChannelRemove(sourceChannel2))
@@ -233,9 +233,9 @@ namespace ManagedBass.Crossfade.Tests
                 Thread.Sleep(1000);
             } while (true);
 
-            if (!BassCrossfade.ChannelRemove(sourceChannel1))
+            if (BassCrossfade.ChannelRemove(sourceChannel1))
             {
-                Assert.Fail("Registered channel should have been removed.");
+                Assert.Fail("Registered channel should not have been removed.");
             }
 
             if (!BassCrossfade.ChannelRemove(sourceChannel2))

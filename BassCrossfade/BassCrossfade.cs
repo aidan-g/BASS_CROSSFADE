@@ -181,30 +181,6 @@ namespace ManagedBass.Crossfade
         {
             return BASS_CROSSFADE_ChannelRemove(Handle);
         }
-
-        [DllImport(DllName)]
-        static extern bool BASS_CROSSFADE_IsFading(int Handle);
-
-        public static bool IsFading(int Handle)
-        {
-            return BASS_CROSSFADE_IsFading(Handle);
-        }
-
-        [DllImport(DllName)]
-        static extern bool BASS_CROSSFADE_FadeIn(int Handle);
-
-        public static bool FadeIn(int Handle)
-        {
-            return BASS_CROSSFADE_FadeIn(Handle);
-        }
-
-        [DllImport(DllName)]
-        static extern bool BASS_CROSSFADE_FadeOut(int Handle);
-
-        public static bool FadeOut(int Handle)
-        {
-            return BASS_CROSSFADE_FadeOut(Handle);
-        }
     }
 
     public enum BassCrossfadeAttribute

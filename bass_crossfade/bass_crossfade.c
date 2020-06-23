@@ -5,10 +5,10 @@
 #include "../bass/bassmix.h"
 #include "bass_crossfade.h"
 #include "crossfade_config.h"
+#include "crossfade_envelope.h"
 #include "crossfade_mixer.h"
 #include "crossfade_queue.h"
 #include "crossfade_syncs.h"
-#include "crossfade_volume.h"
 
 BOOL is_initialized = FALSE;
 
@@ -61,13 +61,7 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_SetConfig)(CF_ATTRIBUTE attrib, DWORD value
 	if (!crossfade_config_set(attrib, value)) {
 		return FALSE;
 	}
-	switch (attrib)
-	{
-	case CF_IN_PERIOD:
-	case CF_OUT_PERIOD:
-		crossfade_sync_refresh();
-		break;
-	}
+	crossfade_sync_refresh();
 	return TRUE;
 }
 
@@ -84,7 +78,7 @@ HSTREAM BASSCROSSFADEDEF(BASS_CROSSFADE_StreamCreate)(DWORD freq, DWORD chans, D
 	crossfade_config_set(CF_MIXER, mixer);
 	if (crossfade_queue_peek(&handle)) {
 		crossfade_queue_remove(handle);
-		crossfade_mixer_add(handle, FALSE);
+		crossfade_mixer_add(handle);
 	}
 	return mixer;
 }
@@ -106,13 +100,13 @@ DWORD* BASSCROSSFADEDEF(BASS_CROSSFADE_GetChannels)(DWORD* count) {
 }
 
 BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_ChannelEnqueue)(HSTREAM handle) {
-	if (!BASS_ChannelSetAttribute(handle, BASS_ATTRIB_VOL, 0)) {
-		return FALSE;
-	}
 	if (!crossfade_sync_register(handle)) {
 		return FALSE;
 	}
-	return crossfade_mixer_add(handle, FALSE) || crossfade_queue_add(handle);
+	if (!crossfade_mixer_playing() && crossfade_mixer_add(handle)) {
+		return TRUE;
+	}
+	return crossfade_queue_add(handle);
 }
 
 BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_ChannelRemove)(HSTREAM handle) {
@@ -120,16 +114,4 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_ChannelRemove)(HSTREAM handle) {
 	success &= crossfade_sync_unregister(handle);
 	success &= crossfade_mixer_remove(handle) || crossfade_queue_remove(handle);
 	return success;
-}
-
-BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_IsFading)(HSTREAM handle) {
-	return crossfade_fading(handle);
-}
-
-BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_FadeIn)(HSTREAM handle) {
-	return crossfade_fade_in_async(handle, 1);
-}
-
-BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_FadeOut)(HSTREAM handle) {
-	return crossfade_fade_out_async(handle, 0);
 }

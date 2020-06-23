@@ -1,8 +1,8 @@
 #include "../bass/bassmix.h"
 #include "crossfade_config.h"
+#include "crossfade_envelope.h"
 #include "crossfade_mixer.h"
 #include "crossfade_queue.h"
-#include "crossfade_volume.h"
 
 BOOL crossfade_mixer_get(HSTREAM* handle) {
 	return crossfade_config_get(CF_MIXER, handle);
@@ -19,25 +19,50 @@ HSTREAM* crossfade_mixer_get_all(DWORD* count) {
 	return handles;
 }
 
-BOOL crossfade_mixer_add(HSTREAM handle, BOOL force) {
-	HSTREAM mixer;
+BOOL crossfade_mixer_playing() {
+	DWORD position;
 	DWORD count;
+	HSTREAM* handles = crossfade_mixer_get_all(&count);
+	for (position = 0; position < count; position++) {
+		if (BASS_ChannelIsActive(handles[position]) == BASS_ACTIVE_PLAYING) {
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+BOOL crossfade_mixer_add(HSTREAM handle) {
+	HSTREAM mixer;
+	DWORD mode;
 	if (!crossfade_mixer_get(&mixer)) {
 		return FALSE;
 	}
-	if (!force) {
-		count = BASS_Mixer_StreamGetChannels(mixer, NULL, 0);
-		if (count) {
+	crossfade_config_get(CF_MODE, &mode);
+	if (mode == CF_ALWAYS || crossfade_mixer_playing()) {
+		if (!BASS_Mixer_StreamAddChannel(mixer, handle, BASS_MIXER_CHAN_PAUSE | BASS_MIXER_NORAMPIN)) {
+			return FALSE;
+		}
+		crossfade_envelope_apply_in(handle);
+		BASS_Mixer_ChannelFlags(handle, 0, BASS_MIXER_CHAN_PAUSE);
+	}
+	else {
+		if (!BASS_Mixer_StreamAddChannel(mixer, handle, BASS_MIXER_NORAMPIN)) {
 			return FALSE;
 		}
 	}
-	return BASS_Mixer_StreamAddChannel(mixer, handle, BASS_MIXER_NORAMPIN);
+	return TRUE;
 }
 
 BOOL crossfade_mixer_remove(HSTREAM handle) {
+	DWORD period;
 	if (BASS_ChannelIsActive(handle) == BASS_ACTIVE_PLAYING) {
 		crossfade_mixer_next();
-		crossfade_fade_out(handle);
+		crossfade_config_get(CF_OUT_PERIOD, &period);
+		if (period) {
+			crossfade_envelope_apply_out(handle);
+			//We should really create a sync/call back.
+			Sleep(period * 2);
+		}
 	}
 	return BASS_Mixer_ChannelRemove(handle);
 }
@@ -48,5 +73,5 @@ BOOL crossfade_mixer_next() {
 		return FALSE;
 	}
 	crossfade_queue_remove(handle);
-	return crossfade_mixer_add(handle, TRUE);
+	return crossfade_mixer_add(handle);
 }
