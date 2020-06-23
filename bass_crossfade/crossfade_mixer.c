@@ -2,6 +2,7 @@
 #include "crossfade_config.h"
 #include "crossfade_mixer.h"
 #include "crossfade_queue.h"
+#include "crossfade_volume.h"
 
 BOOL crossfade_mixer_get(HSTREAM* handle) {
 	return crossfade_config_get(CF_MIXER, handle);
@@ -30,10 +31,14 @@ BOOL crossfade_mixer_add(HSTREAM handle, BOOL force) {
 			return FALSE;
 		}
 	}
-	return BASS_Mixer_StreamAddChannel(mixer, handle, 0);
+	return BASS_Mixer_StreamAddChannel(mixer, handle, BASS_MIXER_NORAMPIN);
 }
 
 BOOL crossfade_mixer_remove(HSTREAM handle) {
+	if (BASS_ChannelIsActive(handle) == BASS_ACTIVE_PLAYING) {
+		crossfade_mixer_next();
+		crossfade_fade_out(handle);
+	}
 	return BASS_Mixer_ChannelRemove(handle);
 }
 

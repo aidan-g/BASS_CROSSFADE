@@ -3,8 +3,6 @@
 #include "crossfade_volume.h"
 #include "crossfade_config.h"
 
-#define BASS_SLIDE_LOG 0x10000
-
 typedef float (CALLBACK CURVEPROC)(float value);
 
 typedef struct {
@@ -142,7 +140,36 @@ BOOL crossfade_slide_volume(HSTREAM handle, DWORD period, DWORD type, float valu
 	return FALSE;
 }
 
+BOOL crossfade_wait(HSTREAM handle, DWORD period) {
+	DWORD position = 0;
+	for (position = 0, period *= 2; position < period; position++) {
+		if (!crossfade_fading(handle)) {
+			return TRUE;
+		}
+		Sleep(1);
+	}
+	return FALSE;
+}
+
 BOOL crossfade_fade_in(HSTREAM handle) {
+	DWORD period;
+	if (!crossfade_fade_in_async(handle)) {
+		return FALSE;
+	}
+	crossfade_config_get(CF_IN_PERIOD, &period);
+	return crossfade_wait(handle, period);
+}
+
+BOOL crossfade_fade_out(HSTREAM handle) {
+	DWORD period;
+	if (!crossfade_fade_out_async(handle)) {
+		return FALSE;
+	}
+	crossfade_config_get(CF_OUT_PERIOD, &period);
+	return crossfade_wait(handle, period);
+}
+
+BOOL crossfade_fade_in_async(HSTREAM handle) {
 	DWORD period;
 	DWORD type;
 	float value = 1;
@@ -151,7 +178,7 @@ BOOL crossfade_fade_in(HSTREAM handle) {
 	return crossfade_slide_volume(handle, period, type, value);
 }
 
-BOOL crossfade_fade_out(HSTREAM handle) {
+BOOL crossfade_fade_out_async(HSTREAM handle) {
 	DWORD period;
 	DWORD type;
 	float value = 0;

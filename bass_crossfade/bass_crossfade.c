@@ -23,9 +23,11 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_Init)() {
 	if (is_initialized) {
 		return FALSE;
 	}
-	crossfade_config_set(CF_MODE, CF_ALWAYS);
+	crossfade_config_set(CF_MIXER, 0);
+	crossfade_config_set(CF_MODE, CF_MANUAL);
 	crossfade_config_set(CF_IN_PERIOD, 100);
 	crossfade_config_set(CF_OUT_PERIOD, 100);
+	crossfade_config_set(CF_OVERLAP_PERIOD, 0);
 	crossfade_config_set(CF_IN_TYPE, CF_EASE_IN);
 	crossfade_config_set(CF_OUT_TYPE, CF_EASE_IN);
 	is_initialized = TRUE;
@@ -40,6 +42,7 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_Free)() {
 	if (!is_initialized) {
 		success = FALSE;
 	}
+	crossfade_config_set(CF_MIXER, 0);
 	if (success) {
 		is_initialized = FALSE;
 #if _DEBUG
@@ -124,9 +127,9 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_IsFading)(HSTREAM handle) {
 }
 
 BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_FadeIn)(HSTREAM handle) {
-	return crossfade_fade_in(handle, 1);
+	return crossfade_fade_in_async(handle, 1);
 }
 
 BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_FadeOut)(HSTREAM handle) {
-	return crossfade_fade_out(handle, 0);
+	return crossfade_fade_out_async(handle, 0);
 }

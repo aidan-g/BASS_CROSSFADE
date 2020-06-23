@@ -14,8 +14,9 @@ typedef enum {
 	CF_MODE = 2,
 	CF_IN_PERIOD = 3,
 	CF_OUT_PERIOD = 4,
-	CF_IN_TYPE = 5,
-	CF_OUT_TYPE = 6
+	CF_OVERLAP_PERIOD = 5,
+	CF_IN_TYPE = 6,
+	CF_OUT_TYPE = 7
 } CF_ATTRIBUTE;
 
 typedef enum {
