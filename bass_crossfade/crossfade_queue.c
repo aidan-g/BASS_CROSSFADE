@@ -19,7 +19,7 @@ HSTREAM* crossfade_queue_get_all(DWORD* count) {
 }
 
 BOOL crossfade_queue_peek(HSTREAM* handle) {
-	if (!handle[0]) {
+	if (!handles[0]) {
 		return FALSE;
 	}
 	*handle = handles[0];

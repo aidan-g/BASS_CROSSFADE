@@ -20,8 +20,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\lib\x64\bass.lib" />
-    <Library Include="..\lib\x64\bassmix.lib" />
-    <Library Include="..\lib\x64\msvcrt.lib" />
+    <Library Include="..\lib\x86\bass.lib" />
+    <Library Include="..\lib\x86\bassmix.lib" />
+    <Library Include="..\lib\x86\msvcrt.lib" />
   </ItemGroup>
 </Project>

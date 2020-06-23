@@ -24,7 +24,7 @@ BOOL crossfade_mixer_playing() {
 	DWORD count;
 	HSTREAM* handles = crossfade_mixer_get_all(&count);
 	for (position = 0; position < count; position++) {
-		if (BASS_ChannelIsActive(handles[position]) == BASS_ACTIVE_PLAYING) {
+		if (BASS_Mixer_ChannelGetMixer(handles[position]) && BASS_ChannelIsActive(handles[position]) == BASS_ACTIVE_PLAYING) {
 			return TRUE;
 		}
 	}
@@ -53,15 +53,21 @@ BOOL crossfade_mixer_add(HSTREAM handle) {
 	return TRUE;
 }
 
+BOOL crossfade_mixer_wait(HSTREAM handle) {
+	while (BASS_Mixer_ChannelGetMixer(handle)) {
+		Sleep(10);
+	}
+	return TRUE;
+}
+
 BOOL crossfade_mixer_remove(HSTREAM handle) {
 	DWORD period;
-	if (BASS_ChannelIsActive(handle) == BASS_ACTIVE_PLAYING) {
+	if (BASS_Mixer_ChannelGetMixer(handle) && BASS_ChannelIsActive(handle) == BASS_ACTIVE_PLAYING) {
 		crossfade_mixer_next();
 		crossfade_config_get(CF_OUT_PERIOD, &period);
 		if (period) {
 			crossfade_envelope_apply_out(handle);
-			//We should really create a sync/call back.
-			Sleep(period * 2);
+			return crossfade_mixer_wait(handle);
 		}
 	}
 	return BASS_Mixer_ChannelRemove(handle);

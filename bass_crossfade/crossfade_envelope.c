@@ -114,5 +114,5 @@ BOOL crossfade_envelope_apply_out(HSTREAM handle) {
 	if (!crossfade_envelope_populate(period, type, 1, 0, envelope)) {
 		return FALSE;
 	}
-	return BASS_Mixer_ChannelSetEnvelope(handle, BASS_MIXER_ENV_VOL, envelope, ENVELOPE_POINTS);
+	return BASS_Mixer_ChannelSetEnvelope(handle, BASS_MIXER_ENV_VOL | BASS_MIXER_ENV_REMOVE, envelope, ENVELOPE_POINTS);
 }
