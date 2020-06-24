@@ -6,37 +6,31 @@
 typedef struct {
 	HSTREAM handle;
 	HSYNC next;
-	HSYNC remove;
 	HSYNC fade_out;
-	HSYNC unregister;
 } CF_SYNCS;
 
 static CF_SYNCS syncs[MAX_CHANNELS] = { 0 };
 
 static void CALLBACK __crossfade_sync_next(HSYNC handle, DWORD channel, DWORD data, void* user) {
-	crossfade_mixer_next();
-}
-
-static void CALLBACK __crossfade_sync_remove(HSYNC handle, DWORD channel, DWORD data, void* user) {
-	crossfade_mixer_remove(channel);
+	BOOL success = TRUE;
+	success &= crossfade_mixer_next();
 }
 
 static void CALLBACK __crossfade_sync_next_remove(HSYNC handle, DWORD channel, DWORD data, void* user) {
-	crossfade_mixer_next();
-	crossfade_mixer_remove(channel);
+	BOOL success = TRUE;
+	success &= crossfade_mixer_next();
+	success &= crossfade_mixer_remove(channel);
 }
 
 static void CALLBACK __crossfade_sync_fade_out(HSYNC handle, DWORD channel, DWORD data, void* user) {
-	crossfade_envelope_apply_out(channel);
+	BOOL success = TRUE;
+	success &= crossfade_envelope_apply_out(channel, FALSE);
 }
 
 static void CALLBACK __crossfade_sync_next_fade_out(HSYNC handle, DWORD channel, DWORD data, void* user) {
-	crossfade_mixer_next();
-	crossfade_envelope_apply_out(channel);
-}
-
-static void CALLBACK __crossfade_sync_unregister(HSYNC handle, DWORD channel, DWORD data, void* user) {
-	crossfade_sync_unregister(channel);
+	BOOL success = TRUE;
+	success &= crossfade_mixer_next();
+	success &= crossfade_envelope_apply_out(channel, TRUE);
 }
 
 BOOL crossfade_sync_register(HSTREAM handle) {
@@ -62,59 +56,45 @@ BOOL crossfade_sync_register(HSTREAM handle) {
 					NULL
 				);
 			}
-			else if (out_period > 0) {
-				syncs[position].fade_out = BASS_ChannelSetSync(
-					handle,
-					BASS_SYNC_POS | BASS_SYNC_ONETIME,
-					BASS_ChannelGetLength(handle, BASS_POS_BYTE) - BASS_ChannelSeconds2Bytes(handle, out_period / 1000),
-					&__crossfade_sync_fade_out,
-					NULL
-				);
-			}
 			else {
-				syncs[position].next = BASS_ChannelSetSync(
-					handle,
-					BASS_SYNC_END | BASS_SYNC_ONETIME,
-					0,
-					&__crossfade_sync_remove,
-					NULL
-				);
-			}
-			if (out_period != overlap_period && overlap_period > 0) {
-				syncs[position].next = BASS_ChannelSetSync(
-					handle,
-					BASS_SYNC_POS | BASS_SYNC_ONETIME,
-					BASS_ChannelGetLength(handle, BASS_POS_BYTE) - BASS_ChannelSeconds2Bytes(handle, overlap_period / 1000),
-					&__crossfade_sync_next,
-					NULL
-				);
-			}
-			else {
-				syncs[position].next = BASS_ChannelSetSync(
-					handle,
-					BASS_SYNC_END | BASS_SYNC_ONETIME,
-					0,
-					&__crossfade_sync_next,
-					NULL
-				);
+				if (out_period > 0) {
+					syncs[position].fade_out = BASS_ChannelSetSync(
+						handle,
+						BASS_SYNC_POS | BASS_SYNC_ONETIME,
+						BASS_ChannelGetLength(handle, BASS_POS_BYTE) - BASS_ChannelSeconds2Bytes(handle, out_period / 1000),
+						&__crossfade_sync_fade_out,
+						NULL
+					);
+				}
+				if (overlap_period > 0) {
+					syncs[position].next = BASS_ChannelSetSync(
+						handle,
+						BASS_SYNC_POS | BASS_SYNC_ONETIME,
+						BASS_ChannelGetLength(handle, BASS_POS_BYTE) - BASS_ChannelSeconds2Bytes(handle, overlap_period / 1000),
+						&__crossfade_sync_next,
+						NULL
+					);
+				}
+				else {
+					syncs[position].next = BASS_ChannelSetSync(
+						handle,
+						BASS_SYNC_END,
+						0,
+						&__crossfade_sync_next,
+						NULL
+					);
+				}
 			}
 		}
 		else {
 			syncs[position].next = BASS_ChannelSetSync(
 				handle,
-				BASS_SYNC_END | BASS_SYNC_ONETIME,
+				BASS_SYNC_END,
 				0,
 				&__crossfade_sync_next_remove,
 				NULL
 			);
 		}
-		syncs[position].unregister = BASS_ChannelSetSync(
-			handle,
-			BASS_SYNC_FREE | BASS_SYNC_ONETIME,
-			0,
-			&__crossfade_sync_unregister,
-			NULL
-		);
 		return TRUE;
 	}
 	return FALSE;
@@ -129,20 +109,12 @@ BOOL crossfade_sync_unregister(HSTREAM handle) {
 		if (syncs[position].next) {
 			BASS_ChannelRemoveSync(handle, syncs[position].next);
 		}
-		if (syncs[position].remove) {
-			BASS_ChannelRemoveSync(handle, syncs[position].remove);
-		}
 		if (syncs[position].fade_out) {
 			BASS_ChannelRemoveSync(handle, syncs[position].fade_out);
 		}
-		if (syncs[position].unregister) {
-			BASS_ChannelRemoveSync(handle, syncs[position].unregister);
-		}
 		syncs[position].handle = 0;
 		syncs[position].next = 0;
-		syncs[position].remove = 0;
 		syncs[position].fade_out = 0;
-		syncs[position].unregister = 0;
 		return TRUE;
 	}
 	return FALSE;

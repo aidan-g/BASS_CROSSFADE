@@ -102,9 +102,10 @@ BOOL crossfade_envelope_apply_in(HSTREAM handle) {
 	return BASS_Mixer_ChannelSetEnvelope(handle, BASS_MIXER_ENV_VOL, envelope, ENVELOPE_POINTS);
 }
 
-BOOL crossfade_envelope_apply_out(HSTREAM handle) {
+BOOL crossfade_envelope_apply_out(HSTREAM handle, BOOL remove) {
 	DWORD period;
 	DWORD type;
+	DWORD flags;
 	BASS_MIXER_NODE envelope[ENVELOPE_POINTS];
 	crossfade_config_get(CF_OUT_PERIOD, &period);
 	crossfade_config_get(CF_OUT_TYPE, &type);
@@ -114,5 +115,9 @@ BOOL crossfade_envelope_apply_out(HSTREAM handle) {
 	if (!crossfade_envelope_populate(period, type, 1, 0, envelope)) {
 		return FALSE;
 	}
-	return BASS_Mixer_ChannelSetEnvelope(handle, BASS_MIXER_ENV_VOL | BASS_MIXER_ENV_REMOVE, envelope, ENVELOPE_POINTS);
+	flags = BASS_MIXER_ENV_VOL;
+	if (remove) {
+		flags |= BASS_MIXER_ENV_REMOVE;
+	}
+	return BASS_Mixer_ChannelSetEnvelope(handle, flags, envelope, ENVELOPE_POINTS);
 }

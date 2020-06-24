@@ -72,7 +72,7 @@ BOOL crossfade_mixer_remove(HSTREAM handle) {
 		crossfade_mixer_next();
 		crossfade_config_get(CF_OUT_PERIOD, &period);
 		if (period) {
-			crossfade_envelope_apply_out(handle);
+			crossfade_envelope_apply_out(handle, TRUE);
 			return crossfade_mixer_wait(handle);
 		}
 	}
