@@ -1,3 +1,7 @@
+#ifdef _DEBUG
+#include <stdio.h>
+#endif
+
 #include <math.h>
 
 #include "../bass/bassmix.h"

@@ -1,11 +1,34 @@
+#ifdef _DEBUG
+#include <stdio.h>
+#endif
+
 #include "../bass/bassmix.h"
 #include "crossfade_config.h"
 #include "crossfade_envelope.h"
 #include "crossfade_mixer.h"
 #include "crossfade_queue.h"
 
+static void CALLBACK __crossfade_mixer_free(HSYNC handle, DWORD channel, DWORD data, void* user) {
+	crossfade_config_set(CF_MIXER, 0);
+}
+
 BOOL crossfade_mixer_get(HSTREAM* handle) {
 	return crossfade_config_get(CF_MIXER, handle);
+}
+
+HSTREAM crossfade_mixer_create(DWORD freq, DWORD chans, DWORD flags, void* user) {
+	HSTREAM mixer = BASS_Mixer_StreamCreate(freq, chans, flags);
+	HSTREAM handle;
+	if (!mixer) {
+		return 0;
+	}
+	BASS_ChannelSetSync(mixer, BASS_SYNC_FREE, 0, &__crossfade_mixer_free, NULL);
+	crossfade_config_set(CF_MIXER, mixer);
+	if (crossfade_queue_peek(&handle)) {
+		crossfade_queue_remove(handle);
+		crossfade_mixer_add(handle);
+	}
+	return mixer;
 }
 
 HSTREAM* crossfade_mixer_get_all(DWORD* count) {
@@ -66,14 +89,16 @@ BOOL crossfade_mixer_wait(HSTREAM handle) {
 	return TRUE;
 }
 
-BOOL crossfade_mixer_remove(HSTREAM handle) {
+BOOL crossfade_mixer_remove(HSTREAM handle, BOOL fade_out) {
 	DWORD period;
-	if (BASS_Mixer_ChannelGetMixer(handle) && BASS_ChannelIsActive(handle) == BASS_ACTIVE_PLAYING) {
-		crossfade_mixer_next();
-		crossfade_config_get(CF_OUT_PERIOD, &period);
-		if (period) {
-			crossfade_envelope_apply_out(handle, TRUE);
-			return crossfade_mixer_wait(handle);
+	if (fade_out) {
+		if (BASS_Mixer_ChannelGetMixer(handle) && BASS_ChannelIsActive(handle) == BASS_ACTIVE_PLAYING) {
+			crossfade_mixer_next();
+			crossfade_config_get(CF_OUT_PERIOD, &period);
+			if (period) {
+				crossfade_envelope_apply_out(handle, TRUE);
+				return crossfade_mixer_wait(handle);
+			}
 		}
 	}
 	return BASS_Mixer_ChannelRemove(handle);

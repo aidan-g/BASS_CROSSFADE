@@ -110,12 +110,12 @@ namespace ManagedBass.Crossfade.Tests
                 Thread.Sleep(1000);
             } while (true);
 
-            if (!BassCrossfade.ChannelRemove(sourceChannel1))
+            if (!BassCrossfade.ChannelRemove(sourceChannel1, true))
             {
                 Assert.Fail("Registered channel should have been removed.");
             }
 
-            if (!BassCrossfade.ChannelRemove(sourceChannel2))
+            if (!BassCrossfade.ChannelRemove(sourceChannel2, true))
             {
                 Assert.Fail("Registered channel should have been removed.");
             }
@@ -209,7 +209,7 @@ namespace ManagedBass.Crossfade.Tests
 
             Thread.Sleep(8000);
 
-            if (!BassCrossfade.ChannelRemove(sourceChannel1))
+            if (!BassCrossfade.ChannelRemove(sourceChannel1, true))
             {
                 Assert.Fail("Failed to remove registered channel.");
             }
@@ -233,12 +233,12 @@ namespace ManagedBass.Crossfade.Tests
                 Thread.Sleep(1000);
             } while (true);
 
-            if (BassCrossfade.ChannelRemove(sourceChannel1))
+            if (BassCrossfade.ChannelRemove(sourceChannel1, true))
             {
                 Assert.Fail("Registered channel should not have been removed.");
             }
 
-            if (!BassCrossfade.ChannelRemove(sourceChannel2))
+            if (!BassCrossfade.ChannelRemove(sourceChannel2, true))
             {
                 Assert.Fail("Registered channel should have been removed.");
             }
@@ -248,6 +248,75 @@ namespace ManagedBass.Crossfade.Tests
             Bass.StreamFree(playbackChannel);
             BassCrossfade.Free();
             Bass.Free();
+        }
+
+        [Test]
+        public void Test003()
+        {
+            for (var position = 0; position < 10; position++)
+            {
+                if (!Bass.Init(Bass.DefaultDevice))
+                {
+                    Assert.Fail(string.Format("Failed to initialize BASS: {0}", Enum.GetName(typeof(Errors), Bass.LastError)));
+                }
+
+                if (!BassCrossfade.Init())
+                {
+                    Assert.Fail("Failed to initialize CROSSFADE.");
+                }
+
+                var sourceChannel1 = Bass.CreateStream(Path.Combine(Location, "Media", "01 Botanical Dimensions.m4a"), 0, 0, BassFlags.Decode | BassFlags.Float);
+                if (sourceChannel1 == 0)
+                {
+                    Assert.Fail(string.Format("Failed to create source stream: {0}", Enum.GetName(typeof(Errors), Bass.LastError)));
+                }
+
+                var sourceChannel2 = Bass.CreateStream(Path.Combine(Location, "Media", "02 Outer Shpongolia.m4a"), 0, 0, BassFlags.Decode | BassFlags.Float);
+                if (sourceChannel2 == 0)
+                {
+                    Assert.Fail(string.Format("Failed to create source stream: {0}", Enum.GetName(typeof(Errors), Bass.LastError)));
+                }
+
+                var channelInfo = default(ChannelInfo);
+                if (!Bass.ChannelGetInfo(sourceChannel1, out channelInfo))
+                {
+                    Assert.Fail(string.Format("Failed to get channel info: {0}", Enum.GetName(typeof(Errors), Bass.LastError)));
+                }
+
+                if (!BassCrossfade.ChannelEnqueue(sourceChannel1))
+                {
+                    Assert.Fail("Failed to add stream to crossfade queue.");
+                }
+
+                if (!BassCrossfade.ChannelEnqueue(sourceChannel2))
+                {
+                    Assert.Fail("Failed to add stream to crossfade queue.");
+                }
+
+                var playbackChannel = BassCrossfade.StreamCreate(channelInfo.Frequency, channelInfo.Channels, BassFlags.Default | BassFlags.Float);
+                if (playbackChannel == 0)
+                {
+                    Assert.Fail(string.Format("Failed to create playback stream: {0}", Enum.GetName(typeof(Errors), Bass.LastError)));
+                }
+
+                if (!Bass.ChannelPlay(playbackChannel))
+                {
+                    Assert.Fail(string.Format("Failed to play stream:  {0}", Enum.GetName(typeof(Errors), Bass.LastError)));
+                }
+
+                Thread.Sleep(5000);
+
+                if (!BassCrossfade.ChannelRemove(sourceChannel1, true))
+                {
+                    Assert.Fail("Registered channel should not have been removed.");
+                }
+
+                Bass.StreamFree(sourceChannel1);
+                Bass.StreamFree(sourceChannel2);
+                Bass.StreamFree(playbackChannel);
+                BassCrossfade.Free();
+                Bass.Free();
+            }
         }
     }
 }

@@ -39,8 +39,15 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_Init)() {
 
 BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_Free)() {
 	BOOL success = TRUE;
+	DWORD* handles;
+	DWORD count;
+	DWORD position;
 	if (!is_initialized) {
 		success = FALSE;
+	}
+	handles = BASS_CROSSFADE_GetChannels(&count);
+	for (position = 0; position < count; position++) {
+		success &= BASS_CROSSFADE_ChannelRemove(handles[position], FALSE);
 	}
 	crossfade_config_set(CF_MIXER, 0);
 	if (success) {
@@ -70,17 +77,7 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_GetConfig)(CF_ATTRIBUTE attrib, DWORD* valu
 }
 
 HSTREAM BASSCROSSFADEDEF(BASS_CROSSFADE_StreamCreate)(DWORD freq, DWORD chans, DWORD flags, void* user) {
-	HSTREAM mixer = BASS_Mixer_StreamCreate(freq, chans, flags);
-	HSTREAM handle;
-	if (!mixer) {
-		return 0;
-	}
-	crossfade_config_set(CF_MIXER, mixer);
-	if (crossfade_queue_peek(&handle)) {
-		crossfade_queue_remove(handle);
-		crossfade_mixer_add(handle);
-	}
-	return mixer;
+	return crossfade_mixer_create(freq, chans, flags, user);
 }
 
 DWORD* BASSCROSSFADEDEF(BASS_CROSSFADE_GetChannels)(DWORD* count) {
@@ -109,9 +106,9 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_ChannelEnqueue)(HSTREAM handle) {
 	return crossfade_queue_add(handle);
 }
 
-BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_ChannelRemove)(HSTREAM handle) {
+BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_ChannelRemove)(HSTREAM handle, BOOL fade_out) {
 	BOOL success = TRUE;
 	success &= crossfade_sync_unregister(handle);
-	success &= crossfade_mixer_remove(handle) || crossfade_queue_remove(handle);
+	success &= crossfade_mixer_remove(handle, fade_out) || crossfade_queue_remove(handle);
 	return success;
 }

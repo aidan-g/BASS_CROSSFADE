@@ -175,11 +175,11 @@ namespace ManagedBass.Crossfade
         }
 
         [DllImport(DllName)]
-        static extern bool BASS_CROSSFADE_ChannelRemove(int Handle);
+        static extern bool BASS_CROSSFADE_ChannelRemove(int Handle, bool FadeOut);
 
-        public static bool ChannelRemove(int Handle)
+        public static bool ChannelRemove(int Handle, bool FadeOut)
         {
-            return BASS_CROSSFADE_ChannelRemove(Handle);
+            return BASS_CROSSFADE_ChannelRemove(Handle, FadeOut);
         }
     }
 
