@@ -10,27 +10,25 @@
 #include "crossfade_envelope.h"
 #include "crossfade_mixer.h"
 
-#define ENVELOPE_POINTS 20
+typedef float (CALLBACK CURVEPROC)(float value, DWORD term);
 
-typedef float (CALLBACK CURVEPROC)(float value);
-
-float CALLBACK crossfade_curve_linear(float value) {
+float CALLBACK crossfade_curve_linear(float value, DWORD term) {
 	return value;
 }
 
-float CALLBACK crossfade_curve_logarithmic(float value) {
-	return value * 2;
+float CALLBACK crossfade_curve_logarithmic(float value, DWORD term) {
+	return (float)((exp(2.0f * value) * ((float)term / ENVELOPE_POINTS)) / 7);
 }
 
-float CALLBACK crossfade_curve_exponential(float value) {
+float CALLBACK crossfade_curve_exponential(float value, DWORD term) {
 	return value * value;
 }
 
-float CALLBACK crossfade_curve_ease_in(float value) {
+float CALLBACK crossfade_curve_ease_in(float value, DWORD term) {
 	return powf(value, 1.7f);
 }
 
-float CALLBACK crossfade_curve_ease_out(float value) {
+float CALLBACK crossfade_curve_ease_out(float value, DWORD term) {
 	return powf(value, 0.48f);
 }
 
@@ -62,7 +60,7 @@ BOOL crossfade_curve_populate(DWORD type, float min, float max, float curve[ENVE
 	step = 1 / (float)ENVELOPE_POINTS;
 	diff = max - min;
 	for (value = step, position = 0; value <= 1; value += step, position++) {
-		curve[position] = min + (diff * proc(value));
+		curve[position] = min + (diff * proc(value, position));
 	}
 	curve[0] = min;
 	curve[ENVELOPE_POINTS - 1] = max;

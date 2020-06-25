@@ -161,6 +161,11 @@
     <Library Include="..\lib\x64\bassmix.lib" />
     <Library Include="..\lib\x64\msvcrt.lib" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\bass_crossfade\bass_crossfade.vcxproj">
+      <Project>{e612bc45-e1b1-4f71-8dcc-60ecc41b7596}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
