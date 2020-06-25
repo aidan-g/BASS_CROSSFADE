@@ -5,7 +5,7 @@
     <AssemblyName>ManagedBass.Crossfade</AssemblyName>
     <OutputPath>..\distribution\</OutputPath>
     <Version>0.0.1</Version>
-    <Platforms>x86;x64</Platforms>
+    <Platforms>x86;x64;AnyCPU</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,6 +32,13 @@
 
   <ItemGroup Condition="'$(Platform)' == 'x86'">
     <None Include="..\lib\x86\bass_crossfade.dll" Link="bass_crossfade.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Platform)'=='AnyCPU'">
+    <None Include="..\lib\x86\bass_crossfade.dll">
+      <Link>bass_crossfade.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

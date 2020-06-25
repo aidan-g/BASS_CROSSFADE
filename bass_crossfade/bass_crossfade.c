@@ -27,7 +27,6 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_Init)() {
 	crossfade_config_set(CF_MODE, CF_MANUAL);
 	crossfade_config_set(CF_IN_PERIOD, 100);
 	crossfade_config_set(CF_OUT_PERIOD, 100);
-	crossfade_config_set(CF_OVERLAP_PERIOD, 0);
 	crossfade_config_set(CF_IN_TYPE, CF_EASE_IN);
 	crossfade_config_set(CF_OUT_TYPE, CF_EASE_OUT);
 	is_initialized = TRUE;
@@ -47,7 +46,8 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_Free)() {
 	}
 	handles = BASS_CROSSFADE_GetChannels(&count);
 	for (position = 0; position < count; position++) {
-		success &= BASS_CROSSFADE_ChannelRemove(handles[position], FALSE);
+		success &= crossfade_sync_unregister(handles[position]);
+		success &= (crossfade_mixer_remove(handles[position], FALSE) || crossfade_queue_remove(handles[position]));
 	}
 	crossfade_config_set(CF_MIXER, 0);
 	if (success) {
@@ -77,7 +77,22 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_GetConfig)(CF_ATTRIBUTE attrib, DWORD* valu
 }
 
 HSTREAM BASSCROSSFADEDEF(BASS_CROSSFADE_StreamCreate)(DWORD freq, DWORD chans, DWORD flags, void* user) {
-	return crossfade_mixer_create(freq, chans, flags, user);
+	DWORD handle;
+	DWORD mode;
+	HSTREAM mixer = crossfade_mixer_create(freq, chans, flags, user);
+	if (mixer) {
+		if (crossfade_queue_peek(&handle)) {
+			crossfade_queue_remove(handle);
+			crossfade_config_get(CF_MODE, &mode);
+			if (mode == CF_ALWAYS) {
+				crossfade_mixer_add(handle, TRUE);
+			}
+			else {
+				crossfade_mixer_add(handle, FALSE);
+			}
+		}
+	}
+	return mixer;
 }
 
 DWORD* BASSCROSSFADEDEF(BASS_CROSSFADE_GetChannels)(DWORD* count) {
@@ -97,18 +112,31 @@ DWORD* BASSCROSSFADEDEF(BASS_CROSSFADE_GetChannels)(DWORD* count) {
 }
 
 BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_ChannelEnqueue)(HSTREAM handle) {
+	DWORD mode;
+	BOOL success = TRUE;
 	if (!crossfade_sync_register(handle)) {
 		return FALSE;
 	}
-	if (!crossfade_mixer_playing() && crossfade_mixer_add(handle)) {
-		return TRUE;
+	if (!crossfade_mixer_playing()) {
+		crossfade_config_get(CF_MODE, &mode);
+		if (mode == CF_ALWAYS) {
+			success &= crossfade_mixer_add(handle, TRUE);
+		}
+		else {
+			success &= crossfade_mixer_add(handle, FALSE);
+		}
+		if (success) {
+			return TRUE;
+		}
 	}
-	return crossfade_queue_add(handle);
+	success = crossfade_queue_add(handle);
+	return success;
 }
 
-BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_ChannelRemove)(HSTREAM handle, BOOL fade_out) {
+BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_ChannelRemove)(HSTREAM handle) {
 	BOOL success = TRUE;
+	crossfade_mixer_next(TRUE);
 	success &= crossfade_sync_unregister(handle);
-	success &= crossfade_mixer_remove(handle, fade_out) || crossfade_queue_remove(handle);
+	success &= crossfade_mixer_remove(handle, TRUE) || crossfade_queue_remove(handle);
 	return success;
 }

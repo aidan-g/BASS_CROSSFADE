@@ -11,11 +11,11 @@ namespace ManagedBass.Crossfade.Tests
         private static readonly string Location = Path.GetDirectoryName(typeof(Tests).Assembly.Location);
 
 
-        [TestCase(100, 100, 100, BassCrossfadeType.EaseOut, BassCrossfadeType.EaseIn)]
-        [TestCase(100, 100, 100, BassCrossfadeType.Logarithmic, BassCrossfadeType.Exponential)]
-        [TestCase(1000, 1000, 1000, BassCrossfadeType.Linear, BassCrossfadeType.Linear)]
-        [TestCase(2000, 2000, 0, BassCrossfadeType.Linear, BassCrossfadeType.Linear)]
-        public void Test001(int inPeriod, int outPeriod, int overlapPeriod, BassCrossfadeType inType, BassCrossfadeType outType)
+        [TestCase(100, 100, BassCrossfadeType.EaseOut, BassCrossfadeType.EaseIn)]
+        [TestCase(100, 100, BassCrossfadeType.Logarithmic, BassCrossfadeType.Exponential)]
+        [TestCase(1000, 1000, BassCrossfadeType.Linear, BassCrossfadeType.Linear)]
+        [TestCase(2000, 2000, BassCrossfadeType.Linear, BassCrossfadeType.Linear)]
+        public void Test001(int inPeriod, int outPeriod, BassCrossfadeType inType, BassCrossfadeType outType)
         {
             if (!Bass.Init(Bass.DefaultDevice))
             {
@@ -30,7 +30,6 @@ namespace ManagedBass.Crossfade.Tests
             BassCrossfade.Mode = BassCrossfadeMode.Always;
             BassCrossfade.InPeriod = inPeriod;
             BassCrossfade.OutPeriod = outPeriod;
-            BassCrossfade.OverlapPeriod = overlapPeriod;
             BassCrossfade.InType = inType;
             BassCrossfade.OutType = outType;
 
@@ -110,14 +109,14 @@ namespace ManagedBass.Crossfade.Tests
                 Thread.Sleep(1000);
             } while (true);
 
-            if (!BassCrossfade.ChannelRemove(sourceChannel1, true))
+            if (BassCrossfade.ChannelRemove(sourceChannel1))
             {
                 Assert.Fail("Registered channel should have been removed.");
             }
 
-            if (!BassCrossfade.ChannelRemove(sourceChannel2, true))
+            if (!BassCrossfade.ChannelRemove(sourceChannel2))
             {
-                Assert.Fail("Registered channel should have been removed.");
+                Assert.Fail("Registered channel should not have been removed.");
             }
 
             Bass.StreamFree(sourceChannel1);
@@ -127,11 +126,11 @@ namespace ManagedBass.Crossfade.Tests
             Bass.Free();
         }
 
-        [TestCase(100, 100, 100, BassCrossfadeType.EaseOut, BassCrossfadeType.EaseIn)]
-        [TestCase(100, 100, 100, BassCrossfadeType.Logarithmic, BassCrossfadeType.Exponential)]
-        [TestCase(1000, 1000, 1000, BassCrossfadeType.Linear, BassCrossfadeType.Linear)]
-        [TestCase(2000, 2000, 2000, BassCrossfadeType.Linear, BassCrossfadeType.Linear)]
-        public void Test002(int inPeriod, int outPeriod, int overlapPeriod, BassCrossfadeType inType, BassCrossfadeType outType)
+        [TestCase(100, 100, BassCrossfadeType.EaseOut, BassCrossfadeType.EaseIn)]
+        [TestCase(100, 100, BassCrossfadeType.Logarithmic, BassCrossfadeType.Exponential)]
+        [TestCase(1000, 1000, BassCrossfadeType.Linear, BassCrossfadeType.Linear)]
+        [TestCase(2000, 2000, BassCrossfadeType.Linear, BassCrossfadeType.Linear)]
+        public void Test002(int inPeriod, int outPeriod, BassCrossfadeType inType, BassCrossfadeType outType)
         {
             if (!Bass.Init(Bass.DefaultDevice))
             {
@@ -146,7 +145,6 @@ namespace ManagedBass.Crossfade.Tests
             BassCrossfade.Mode = BassCrossfadeMode.Manual;
             BassCrossfade.InPeriod = inPeriod;
             BassCrossfade.OutPeriod = outPeriod;
-            BassCrossfade.OverlapPeriod = overlapPeriod;
             BassCrossfade.InType = inType;
             BassCrossfade.OutType = outType;
 
@@ -209,7 +207,7 @@ namespace ManagedBass.Crossfade.Tests
 
             Thread.Sleep(8000);
 
-            if (!BassCrossfade.ChannelRemove(sourceChannel1, true))
+            if (!BassCrossfade.ChannelRemove(sourceChannel1))
             {
                 Assert.Fail("Failed to remove registered channel.");
             }
@@ -233,12 +231,12 @@ namespace ManagedBass.Crossfade.Tests
                 Thread.Sleep(1000);
             } while (true);
 
-            if (BassCrossfade.ChannelRemove(sourceChannel1, true))
+            if (BassCrossfade.ChannelRemove(sourceChannel1))
             {
                 Assert.Fail("Registered channel should not have been removed.");
             }
 
-            if (!BassCrossfade.ChannelRemove(sourceChannel2, true))
+            if (!BassCrossfade.ChannelRemove(sourceChannel2))
             {
                 Assert.Fail("Registered channel should have been removed.");
             }
@@ -306,7 +304,7 @@ namespace ManagedBass.Crossfade.Tests
 
                 Thread.Sleep(5000);
 
-                if (!BassCrossfade.ChannelRemove(sourceChannel1, true))
+                if (!BassCrossfade.ChannelRemove(sourceChannel1))
                 {
                     Assert.Fail("Registered channel should not have been removed.");
                 }

@@ -14,9 +14,8 @@ typedef enum {
 	CF_MODE = 2,
 	CF_IN_PERIOD = 3,
 	CF_OUT_PERIOD = 4,
-	CF_OVERLAP_PERIOD = 5,
-	CF_IN_TYPE = 6,
-	CF_OUT_TYPE = 7
+	CF_IN_TYPE = 5,
+	CF_OUT_TYPE = 6
 } CF_ATTRIBUTE;
 
 typedef enum {
@@ -54,6 +53,6 @@ __declspec(dllexport)
 BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_ChannelEnqueue)(HSTREAM handle);
 
 __declspec(dllexport)
-BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_ChannelRemove)(HSTREAM handle, BOOL fade_out);
+BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_ChannelRemove)(HSTREAM handle);
 
 #endif

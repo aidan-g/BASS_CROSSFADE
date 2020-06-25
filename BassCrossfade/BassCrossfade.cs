@@ -64,23 +64,6 @@ namespace ManagedBass.Crossfade
             }
         }
 
-        public static int OverlapPeriod
-        {
-            get
-            {
-                var period = default(int);
-                if (!GetConfig(BassCrossfadeAttribute.OverlapPeriod, out period))
-                {
-                    return DEFAULT_PERIOD;
-                }
-                return period;
-            }
-            set
-            {
-                SetConfig(BassCrossfadeAttribute.OverlapPeriod, value);
-            }
-        }
-
         public static BassCrossfadeType InType
         {
             get
@@ -175,11 +158,11 @@ namespace ManagedBass.Crossfade
         }
 
         [DllImport(DllName)]
-        static extern bool BASS_CROSSFADE_ChannelRemove(int Handle, bool FadeOut);
+        static extern bool BASS_CROSSFADE_ChannelRemove(int Handle);
 
-        public static bool ChannelRemove(int Handle, bool FadeOut)
+        public static bool ChannelRemove(int Handle)
         {
-            return BASS_CROSSFADE_ChannelRemove(Handle, FadeOut);
+            return BASS_CROSSFADE_ChannelRemove(Handle);
         }
     }
 
@@ -190,9 +173,8 @@ namespace ManagedBass.Crossfade
         Mode = 2,
         InPeriod = 3,
         OutPeriod = 4,
-        OverlapPeriod = 5,
-        InType = 6,
-        OutType = 7
+        InType = 5,
+        OutType = 6
     }
 
     public enum BassCrossfadeMode
