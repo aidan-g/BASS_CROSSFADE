@@ -96,6 +96,23 @@ HSTREAM BASSCROSSFADEDEF(BASS_CROSSFADE_StreamCreate)(DWORD freq, DWORD chans, D
 	return mixer;
 }
 
+BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_StreamFadeIn)() {
+	return crossfade_mixer_next(TRUE);
+}
+
+BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_StreamFadeOut)() {
+	HSTREAM handle;
+	BOOL success = TRUE;
+	if (!crossfade_mixer_peek(&handle)) {
+		return FALSE;
+	}
+	success &= crossfade_sync_unregister(handle);
+	success &= crossfade_mixer_remove(handle, TRUE);
+	success &= crossfade_queue_insert(handle, 0);
+	return success;
+}
+
+
 DWORD* BASSCROSSFADEDEF(BASS_CROSSFADE_GetChannels)(DWORD* count) {
 	DWORD position;
 	DWORD mixer_count;

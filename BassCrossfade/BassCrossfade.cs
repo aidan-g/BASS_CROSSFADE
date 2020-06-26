@@ -9,7 +9,7 @@ namespace ManagedBass.Crossfade
 
         const int DEFAULT_PERIOD = 100;
 
-        const BassCrossfadeType DEFAULT_TYPE = BassCrossfadeType.Quad;
+        const BassCrossfadeType DEFAULT_TYPE = BassCrossfadeType.OutQuad;
 
         const bool DEFAULT_MIX = false;
 
@@ -158,6 +158,22 @@ namespace ManagedBass.Crossfade
         }
 
         [DllImport(DllName)]
+        static extern bool BASS_CROSSFADE_StreamFadeIn();
+
+        public static bool StreamFadeIn()
+        {
+            return BASS_CROSSFADE_StreamFadeIn();
+        }
+
+        [DllImport(DllName)]
+        static extern bool BASS_CROSSFADE_StreamFadeOut();
+
+        public static bool StreamFadeOut()
+        {
+            return BASS_CROSSFADE_StreamFadeOut();
+        }
+
+        [DllImport(DllName)]
         static extern IntPtr BASS_CROSSFADE_GetChannels(out int Count);
 
         public static int[] GetChannels(out int Count)
@@ -208,7 +224,9 @@ namespace ManagedBass.Crossfade
     {
         None = 0,
         Linear = 1,
-        Quad = 2,
-        Expo = 3
+        InQuad = 2,
+        OutQuad = 3,
+        InExpo = 4,
+        OutExpo = 5
     }
 }

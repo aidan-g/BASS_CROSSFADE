@@ -38,6 +38,16 @@ BOOL crossfade_queue_add(HSTREAM handle) {
 	return FALSE;
 }
 
+BOOL crossfade_queue_insert(HSTREAM handle, DWORD index) {
+	DWORD position;
+	if (handles[MAX_CHANNELS - 1]) {
+		return FALSE;
+	}
+	memmove(handles + index + 1, handles + index, sizeof(DWORD) * (MAX_CHANNELS - index));
+	handles[index] = handle;
+	return TRUE;
+}
+
 BOOL crossfade_queue_remove(HSTREAM handle) {
 	DWORD position;
 	for (position = 0; position < MAX_CHANNELS; position++) {

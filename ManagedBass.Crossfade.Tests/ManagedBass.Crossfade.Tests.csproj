@@ -5,7 +5,7 @@
     <AssemblyName>ManagedBass.Crossfade.Tests</AssemblyName>
     <OutputPath>..\distribution\</OutputPath>
     <Version>0.0.1</Version>
-    <Platforms>x86;x64</Platforms>
+    <Platforms>x86;x64;AnyCPU</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,6 +31,17 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="..\lib\x86\bassmix.dll" Link="bassmix.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Platform)'=='AnyCPU'">
+    <None Include="..\lib\x86\bass.dll">
+      <Link>bass.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\lib\x86\bassmix.dll">
+      <Link>bassmix.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

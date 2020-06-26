@@ -48,6 +48,12 @@ __declspec(dllexport)
 HSTREAM BASSCROSSFADEDEF(BASS_CROSSFADE_StreamCreate)(DWORD freq, DWORD chans, DWORD flags, void* user);
 
 __declspec(dllexport)
+BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_StreamFadeIn)();
+
+__declspec(dllexport)
+BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_StreamFadeOut)();
+
+__declspec(dllexport)
 DWORD* BASSCROSSFADEDEF(BASS_CROSSFADE_GetChannels)(DWORD* count);
 
 __declspec(dllexport)

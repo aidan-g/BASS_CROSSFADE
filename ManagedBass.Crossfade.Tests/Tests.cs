@@ -11,8 +11,8 @@ namespace ManagedBass.Crossfade.Tests
         private static readonly string Location = Path.GetDirectoryName(typeof(Tests).Assembly.Location);
 
 
-        [TestCase(100, 100, BassCrossfadeType.Quad, BassCrossfadeType.Quad, false)]
-        [TestCase(100, 100, BassCrossfadeType.Expo, BassCrossfadeType.Expo, false)]
+        [TestCase(100, 100, BassCrossfadeType.OutQuad, BassCrossfadeType.OutQuad, false)]
+        [TestCase(100, 100, BassCrossfadeType.OutExpo, BassCrossfadeType.OutExpo, false)]
         [TestCase(1000, 1000, BassCrossfadeType.Linear, BassCrossfadeType.Linear, true)]
         [TestCase(2000, 2000, BassCrossfadeType.Linear, BassCrossfadeType.Linear, true)]
         public void Test001(int inPeriod, int outPeriod, BassCrossfadeType inType, BassCrossfadeType outType, bool mix)
@@ -110,7 +110,7 @@ namespace ManagedBass.Crossfade.Tests
                 Thread.Sleep(1000);
             } while (true);
 
-            if (BassCrossfade.ChannelRemove(sourceChannel1))
+            if (!BassCrossfade.ChannelRemove(sourceChannel1))
             {
                 Assert.Fail("Registered channel should have been removed.");
             }
@@ -127,8 +127,8 @@ namespace ManagedBass.Crossfade.Tests
             Bass.Free();
         }
 
-        [TestCase(100, 100, BassCrossfadeType.Quad, BassCrossfadeType.Quad, false)]
-        [TestCase(100, 100, BassCrossfadeType.Expo, BassCrossfadeType.Expo, false)]
+        [TestCase(100, 100, BassCrossfadeType.OutQuad, BassCrossfadeType.OutQuad, false)]
+        [TestCase(100, 100, BassCrossfadeType.OutExpo, BassCrossfadeType.OutExpo, false)]
         [TestCase(1000, 1000, BassCrossfadeType.Linear, BassCrossfadeType.Linear, true)]
         [TestCase(2000, 2000, BassCrossfadeType.Linear, BassCrossfadeType.Linear, true)]
         public void Test002(int inPeriod, int outPeriod, BassCrossfadeType inType, BassCrossfadeType outType, bool mix)
@@ -317,6 +317,98 @@ namespace ManagedBass.Crossfade.Tests
                 BassCrossfade.Free();
                 Bass.Free();
             }
+        }
+
+        [Test]
+        public void Test004()
+        {
+            if (!Bass.Init(Bass.DefaultDevice))
+            {
+                Assert.Fail(string.Format("Failed to initialize BASS: {0}", Enum.GetName(typeof(Errors), Bass.LastError)));
+            }
+
+            if (!BassCrossfade.Init())
+            {
+                Assert.Fail("Failed to initialize CROSSFADE.");
+            }
+
+            var sourceChannel1 = Bass.CreateStream(Path.Combine(Location, "Media", "01 Botanical Dimensions.m4a"), 0, 0, BassFlags.Decode | BassFlags.Float);
+            if (sourceChannel1 == 0)
+            {
+                Assert.Fail(string.Format("Failed to create source stream: {0}", Enum.GetName(typeof(Errors), Bass.LastError)));
+            }
+
+            var sourceChannel2 = Bass.CreateStream(Path.Combine(Location, "Media", "02 Outer Shpongolia.m4a"), 0, 0, BassFlags.Decode | BassFlags.Float);
+            if (sourceChannel2 == 0)
+            {
+                Assert.Fail(string.Format("Failed to create source stream: {0}", Enum.GetName(typeof(Errors), Bass.LastError)));
+            }
+
+            var channelInfo = default(ChannelInfo);
+            if (!Bass.ChannelGetInfo(sourceChannel1, out channelInfo))
+            {
+                Assert.Fail(string.Format("Failed to get channel info: {0}", Enum.GetName(typeof(Errors), Bass.LastError)));
+            }
+
+            if (!BassCrossfade.ChannelEnqueue(sourceChannel1))
+            {
+                Assert.Fail("Failed to add stream to crossfade queue.");
+            }
+
+            if (!BassCrossfade.ChannelEnqueue(sourceChannel2))
+            {
+                Assert.Fail("Failed to add stream to crossfade queue.");
+            }
+
+            var sourceChannelCount = default(int);
+            var sourceChannels = BassCrossfade.GetChannels(out sourceChannelCount);
+
+            if (sourceChannelCount != 2)
+            {
+                Assert.Fail("Crossfade reports unexpected queued channel count.");
+            }
+
+            if (sourceChannels[0] != sourceChannel1 || sourceChannels[1] != sourceChannel2)
+            {
+                Assert.Fail("Crossfade reports unexpected queued channel handles.");
+            }
+
+            var playbackChannel = BassCrossfade.StreamCreate(channelInfo.Frequency, channelInfo.Channels, BassFlags.Default | BassFlags.Float);
+            if (playbackChannel == 0)
+            {
+                Assert.Fail(string.Format("Failed to create playback stream: {0}", Enum.GetName(typeof(Errors), Bass.LastError)));
+            }
+
+            if (!Bass.ChannelPlay(playbackChannel))
+            {
+                Assert.Fail(string.Format("Failed to play stream:  {0}", Enum.GetName(typeof(Errors), Bass.LastError)));
+            }
+
+            Thread.Sleep(8000);
+
+            BassCrossfade.StreamFadeOut();
+
+            Thread.Sleep(2000);
+
+            BassCrossfade.StreamFadeIn();
+
+            Thread.Sleep(8000);
+
+            if (BassCrossfade.ChannelRemove(sourceChannel1))
+            {
+                Assert.Fail("Registered channel should not have been removed.");
+            }
+
+            if (!BassCrossfade.ChannelRemove(sourceChannel2))
+            {
+                Assert.Fail("Registered channel should have been removed.");
+            }
+
+            Bass.StreamFree(sourceChannel1);
+            Bass.StreamFree(sourceChannel2);
+            Bass.StreamFree(playbackChannel);
+            BassCrossfade.Free();
+            Bass.Free();
         }
     }
 }

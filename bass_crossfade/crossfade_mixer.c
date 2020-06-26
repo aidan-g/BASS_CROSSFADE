@@ -37,6 +37,16 @@ HSTREAM* crossfade_mixer_get_all(DWORD* count) {
 	return handles;
 }
 
+BOOL crossfade_mixer_peek(HSTREAM* handle) {
+	DWORD count;
+	HSTREAM* handles = crossfade_mixer_get_all(&count);
+	if (count == 0) {
+		return FALSE;
+	}
+	*handle = handles[0];
+	return TRUE;
+}
+
 BOOL crossfade_mixer_playing() {
 	DWORD position;
 	DWORD count;
