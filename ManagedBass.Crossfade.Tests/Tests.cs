@@ -11,11 +11,11 @@ namespace ManagedBass.Crossfade.Tests
         private static readonly string Location = Path.GetDirectoryName(typeof(Tests).Assembly.Location);
 
 
-        [TestCase(200, 200, BassCrossfadeType.Quad, BassCrossfadeType.Quad)]
-        [TestCase(200, 200, BassCrossfadeType.Expo, BassCrossfadeType.Expo)]
-        [TestCase(1000, 1000, BassCrossfadeType.Linear, BassCrossfadeType.Linear)]
-        [TestCase(2000, 2000, BassCrossfadeType.Linear, BassCrossfadeType.Linear)]
-        public void Test001(int inPeriod, int outPeriod, BassCrossfadeType inType, BassCrossfadeType outType)
+        [TestCase(100, 100, BassCrossfadeType.Quad, BassCrossfadeType.Quad, false)]
+        [TestCase(100, 100, BassCrossfadeType.Expo, BassCrossfadeType.Expo, false)]
+        [TestCase(1000, 1000, BassCrossfadeType.Linear, BassCrossfadeType.Linear, true)]
+        [TestCase(2000, 2000, BassCrossfadeType.Linear, BassCrossfadeType.Linear, true)]
+        public void Test001(int inPeriod, int outPeriod, BassCrossfadeType inType, BassCrossfadeType outType, bool mix)
         {
             if (!Bass.Init(Bass.DefaultDevice))
             {
@@ -32,6 +32,7 @@ namespace ManagedBass.Crossfade.Tests
             BassCrossfade.OutPeriod = outPeriod;
             BassCrossfade.InType = inType;
             BassCrossfade.OutType = outType;
+            BassCrossfade.Mix = mix;
 
             var sourceChannel1 = Bass.CreateStream(Path.Combine(Location, "Media", "01 Botanical Dimensions.m4a"), 0, 0, BassFlags.Decode | BassFlags.Float);
             if (sourceChannel1 == 0)
@@ -126,11 +127,11 @@ namespace ManagedBass.Crossfade.Tests
             Bass.Free();
         }
 
-        [TestCase(100, 100, BassCrossfadeType.Quad, BassCrossfadeType.Quad)]
-        [TestCase(100, 100, BassCrossfadeType.Expo, BassCrossfadeType.Expo)]
-        [TestCase(1000, 1000, BassCrossfadeType.Linear, BassCrossfadeType.Linear)]
-        [TestCase(2000, 2000, BassCrossfadeType.Linear, BassCrossfadeType.Linear)]
-        public void Test002(int inPeriod, int outPeriod, BassCrossfadeType inType, BassCrossfadeType outType)
+        [TestCase(100, 100, BassCrossfadeType.Quad, BassCrossfadeType.Quad, false)]
+        [TestCase(100, 100, BassCrossfadeType.Expo, BassCrossfadeType.Expo, false)]
+        [TestCase(1000, 1000, BassCrossfadeType.Linear, BassCrossfadeType.Linear, true)]
+        [TestCase(2000, 2000, BassCrossfadeType.Linear, BassCrossfadeType.Linear, true)]
+        public void Test002(int inPeriod, int outPeriod, BassCrossfadeType inType, BassCrossfadeType outType, bool mix)
         {
             if (!Bass.Init(Bass.DefaultDevice))
             {
@@ -147,6 +148,7 @@ namespace ManagedBass.Crossfade.Tests
             BassCrossfade.OutPeriod = outPeriod;
             BassCrossfade.InType = inType;
             BassCrossfade.OutType = outType;
+            BassCrossfade.Mix = mix;
 
             var sourceChannel1 = Bass.CreateStream(Path.Combine(Location, "Media", "01 Botanical Dimensions.m4a"), 0, 0, BassFlags.Decode | BassFlags.Float);
             if (sourceChannel1 == 0)

@@ -11,6 +11,8 @@ namespace ManagedBass.Crossfade
 
         const BassCrossfadeType DEFAULT_TYPE = BassCrossfadeType.Quad;
 
+        const bool DEFAULT_MIX = false;
+
         const string DllName = "bass_crossfade";
 
         public static BassCrossfadeMode Mode
@@ -98,6 +100,23 @@ namespace ManagedBass.Crossfade
             }
         }
 
+        public static bool Mix
+        {
+            get
+            {
+                var mix = default(int);
+                if (!GetConfig(BassCrossfadeAttribute.Mix, out mix))
+                {
+                    return DEFAULT_MIX;
+                }
+                return mix != 0;
+            }
+            set
+            {
+                SetConfig(BassCrossfadeAttribute.Mix, value ? 1 : 0);
+            }
+        }
+
         [DllImport(DllName)]
         static extern bool BASS_CROSSFADE_Init();
 
@@ -174,7 +193,8 @@ namespace ManagedBass.Crossfade
         InPeriod = 3,
         OutPeriod = 4,
         InType = 5,
-        OutType = 6
+        OutType = 6,
+        Mix = 7
     }
 
     public enum BassCrossfadeMode

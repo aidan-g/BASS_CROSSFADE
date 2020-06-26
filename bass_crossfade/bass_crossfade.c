@@ -29,6 +29,7 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_Init)() {
 	crossfade_config_set(CF_OUT_PERIOD, 100);
 	crossfade_config_set(CF_IN_TYPE, CF_OUT_QUAD);
 	crossfade_config_set(CF_OUT_TYPE, CF_OUT_QUAD);
+	crossfade_config_set(CF_MIX, FALSE);
 	is_initialized = TRUE;
 #if _DEBUG
 	printf("BASS CROSSFADE initialized.\n");
@@ -134,9 +135,17 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_ChannelEnqueue)(HSTREAM handle) {
 }
 
 BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_ChannelRemove)(HSTREAM handle) {
+	DWORD mix;
 	BOOL success = TRUE;
-	crossfade_mixer_next(TRUE);
+	crossfade_config_get(CF_MIX, &mix);
 	success &= crossfade_sync_unregister(handle);
-	success &= crossfade_mixer_remove(handle, TRUE) || crossfade_queue_remove(handle);
+	if (mix) {
+		crossfade_mixer_next(TRUE);
+		success &= crossfade_mixer_remove(handle, TRUE) || crossfade_queue_remove(handle);
+	}
+	else {
+		success &= crossfade_mixer_remove(handle, TRUE) || crossfade_queue_remove(handle);
+		crossfade_mixer_next(TRUE);
+	}
 	return success;
 }

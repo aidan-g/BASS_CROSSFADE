@@ -15,7 +15,8 @@ typedef enum {
 	CF_IN_PERIOD = 3,
 	CF_OUT_PERIOD = 4,
 	CF_IN_TYPE = 5,
-	CF_OUT_TYPE = 6
+	CF_OUT_TYPE = 6,
+	CF_MIX = 7
 } CF_ATTRIBUTE;
 
 typedef enum {
