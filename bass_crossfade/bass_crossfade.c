@@ -27,8 +27,8 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_Init)() {
 	crossfade_config_set(CF_MODE, CF_MANUAL);
 	crossfade_config_set(CF_IN_PERIOD, 100);
 	crossfade_config_set(CF_OUT_PERIOD, 100);
-	crossfade_config_set(CF_IN_TYPE, CF_EASE_IN);
-	crossfade_config_set(CF_OUT_TYPE, CF_EASE_OUT);
+	crossfade_config_set(CF_IN_TYPE, CF_OUT_QUAD);
+	crossfade_config_set(CF_OUT_TYPE, CF_OUT_QUAD);
 	is_initialized = TRUE;
 #if _DEBUG
 	printf("BASS CROSSFADE initialized.\n");

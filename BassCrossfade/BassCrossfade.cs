@@ -9,7 +9,7 @@ namespace ManagedBass.Crossfade
 
         const int DEFAULT_PERIOD = 100;
 
-        const BassCrossfadeType DEFAULT_TYPE = BassCrossfadeType.EaseIn;
+        const BassCrossfadeType DEFAULT_TYPE = BassCrossfadeType.Quad;
 
         const string DllName = "bass_crossfade";
 
@@ -188,9 +188,7 @@ namespace ManagedBass.Crossfade
     {
         None = 0,
         Linear = 1,
-        Logarithmic = 2,
-        Exponential = 3,
-        EaseIn = 4,
-        EaseOut = 5
+        Quad = 2,
+        Expo = 3
     }
 }

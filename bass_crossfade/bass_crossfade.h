@@ -25,10 +25,10 @@ typedef enum {
 
 typedef enum {
 	CF_LINEAR = 1,
-	CF_LOGARITHMIC = 2,
-	CF_EXPONENTIAL = 3,
-	CF_EASE_IN = 4,
-	CF_EASE_OUT = 5
+	CF_IN_QUAD = 2,
+	CF_OUT_QUAD = 3,
+	CF_IN_EXPO = 4,
+	CF_OUT_EXPO = 5
 };
 
 __declspec(dllexport)

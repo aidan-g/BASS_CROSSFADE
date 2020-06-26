@@ -11,8 +11,8 @@ namespace ManagedBass.Crossfade.Tests
         private static readonly string Location = Path.GetDirectoryName(typeof(Tests).Assembly.Location);
 
 
-        [TestCase(100, 100, BassCrossfadeType.EaseOut, BassCrossfadeType.EaseIn)]
-        [TestCase(100, 100, BassCrossfadeType.Logarithmic, BassCrossfadeType.Exponential)]
+        [TestCase(200, 200, BassCrossfadeType.Quad, BassCrossfadeType.Quad)]
+        [TestCase(200, 200, BassCrossfadeType.Expo, BassCrossfadeType.Expo)]
         [TestCase(1000, 1000, BassCrossfadeType.Linear, BassCrossfadeType.Linear)]
         [TestCase(2000, 2000, BassCrossfadeType.Linear, BassCrossfadeType.Linear)]
         public void Test001(int inPeriod, int outPeriod, BassCrossfadeType inType, BassCrossfadeType outType)
@@ -126,8 +126,8 @@ namespace ManagedBass.Crossfade.Tests
             Bass.Free();
         }
 
-        [TestCase(100, 100, BassCrossfadeType.EaseOut, BassCrossfadeType.EaseIn)]
-        [TestCase(100, 100, BassCrossfadeType.Logarithmic, BassCrossfadeType.Exponential)]
+        [TestCase(100, 100, BassCrossfadeType.Quad, BassCrossfadeType.Quad)]
+        [TestCase(100, 100, BassCrossfadeType.Expo, BassCrossfadeType.Expo)]
         [TestCase(1000, 1000, BassCrossfadeType.Linear, BassCrossfadeType.Linear)]
         [TestCase(2000, 2000, BassCrossfadeType.Linear, BassCrossfadeType.Linear)]
         public void Test002(int inPeriod, int outPeriod, BassCrossfadeType inType, BassCrossfadeType outType)

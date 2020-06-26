@@ -1,6 +1,6 @@
 #include "../bass/bass.h"
 
-#define ENVELOPE_POINTS 50
+#define ENVELOPE_POINTS 20
 
 __declspec(dllexport)
 BOOL crossfade_curve_populate(DWORD type, float min, float max, float curve[ENVELOPE_POINTS]);
