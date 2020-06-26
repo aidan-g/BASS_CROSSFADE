@@ -39,7 +39,6 @@ BOOL crossfade_queue_add(HSTREAM handle) {
 }
 
 BOOL crossfade_queue_insert(HSTREAM handle, DWORD index) {
-	DWORD position;
 	if (handles[MAX_CHANNELS - 1]) {
 		return FALSE;
 	}

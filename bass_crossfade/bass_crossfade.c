@@ -51,8 +51,8 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_Free)() {
 		success &= (crossfade_mixer_remove(handles[position], FALSE) || crossfade_queue_remove(handles[position]));
 	}
 	crossfade_config_set(CF_MIXER, 0);
+	is_initialized = FALSE;
 	if (success) {
-		is_initialized = FALSE;
 #if _DEBUG
 		printf("BASS CROSSFADE released.\n");
 #endif
@@ -106,7 +106,6 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_StreamFadeOut)() {
 	if (!crossfade_mixer_peek(&handle)) {
 		return FALSE;
 	}
-	success &= crossfade_sync_unregister(handle);
 	success &= crossfade_mixer_remove(handle, TRUE);
 	success &= crossfade_queue_insert(handle, 0);
 	return success;

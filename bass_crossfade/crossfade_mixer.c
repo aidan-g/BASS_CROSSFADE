@@ -59,10 +59,22 @@ BOOL crossfade_mixer_playing() {
 	return FALSE;
 }
 
-BOOL crossfade_mixer_wait(HSTREAM handle) {
+BOOL crossfade_mixer_wait(HSTREAM handle, DWORD period) {
+	//Wait until the channel is;
+	//a) Removed from the mixer (probably by BASS_MIXER_ENV_REMOVE).
+	//b) Is no longer active.
+	//c) Stops decoding.
+	QWORD last_position = BASS_ChannelGetPosition(handle, BASS_POS_BYTE);
+	QWORD current_position;
 	DWORD buffer = BASS_GetConfig(BASS_CONFIG_BUFFER);
-	while (BASS_Mixer_ChannelGetMixer(handle)) {
+	Sleep(period);
+	while (BASS_Mixer_ChannelGetMixer(handle) && BASS_ChannelIsActive(handle) == BASS_ACTIVE_PLAYING) {
 		Sleep(10);
+		current_position = BASS_ChannelGetPosition(handle, BASS_POS_BYTE);
+		if (current_position == last_position) {
+			return FALSE;
+		}
+		last_position = current_position;
 	}
 	//This seems dumb but I can't get a smooth fade out otherwise.
 	//Seems removing a stream from the mixer removes unplayed data from the buffers.
@@ -99,7 +111,7 @@ BOOL crossfade_mixer_remove(HSTREAM handle, BOOL fade_out) {
 			crossfade_config_get(CF_OUT_PERIOD, &period);
 			if (period) {
 				crossfade_envelope_apply_out(handle, TRUE);
-				return crossfade_mixer_wait(handle);
+				return crossfade_mixer_wait(handle, period);
 			}
 		}
 	}
