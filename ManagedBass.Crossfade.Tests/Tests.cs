@@ -361,15 +361,44 @@ namespace ManagedBass.Crossfade.Tests
 
             Thread.Sleep(8000);
 
-            BassCrossfade.StreamFadeOut();
+            for (var a = 0; a < 10; a++)
+            {
+                BassCrossfade.StreamFadeOut();
 
-            Thread.Sleep(2000);
+                var sourceChannelCount = default(int);
+                var sourceChannels = BassCrossfade.GetChannels(out sourceChannelCount);
 
-            BassCrossfade.StreamFadeIn();
+                if (sourceChannelCount != 2)
+                {
+                    Assert.Fail("Crossfade reports unexpected queued channel count.");
+                }
+
+                if (sourceChannels[0] != sourceChannel1 || sourceChannels[1] != sourceChannel2)
+                {
+                    Assert.Fail("Crossfade reports unexpected queued channel handles.");
+                }
+
+                Thread.Sleep(2000);
+
+                BassCrossfade.StreamFadeIn();
+
+                sourceChannelCount = default(int);
+                sourceChannels = BassCrossfade.GetChannels(out sourceChannelCount);
+
+                if (sourceChannelCount != 2)
+                {
+                    Assert.Fail("Crossfade reports unexpected queued channel count.");
+                }
+
+                if (sourceChannels[0] != sourceChannel1 || sourceChannels[1] != sourceChannel2)
+                {
+                    Assert.Fail("Crossfade reports unexpected queued channel handles.");
+                }
+            }
 
             Thread.Sleep(8000);
 
-            if (BassCrossfade.ChannelRemove(sourceChannel1))
+            if (!BassCrossfade.ChannelRemove(sourceChannel1))
             {
                 Assert.Fail("Registered channel should not have been removed.");
             }

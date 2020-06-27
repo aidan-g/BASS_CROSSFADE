@@ -99,11 +99,21 @@ HSTREAM BASSCROSSFADEDEF(BASS_CROSSFADE_StreamCreate)(DWORD freq, DWORD chans, D
 }
 
 BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_StreamFadeIn)() {
-	return FALSE;
+	return crossfade_mixer_next(TRUE);
 }
 
 BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_StreamFadeOut)() {
-	return FALSE;
+	HSTREAM handle;
+	if (!crossfade_mixer_playing()) {
+		return FALSE;
+	}
+	if (!crossfade_mixer_peek(&handle)) {
+		return FALSE;
+	}
+	if (!crossfade_mixer_remove(handle, TRUE)) {
+		return FALSE;
+	}
+	return crossfade_queue_push(handle);
 }
 
 

@@ -142,6 +142,34 @@ BOOL queue_dequeue(QUEUE* queue, void** data) {
 	return success;
 }
 
+BOOL queue_push(QUEUE* queue, void* data, BOOL unique) {
+	BOOL success;
+	QUEUE_NODE* node;
+	if (!queue_enter(queue)) {
+		return FALSE;
+	}
+	if (unique && _queue_contains(queue, data)) {
+		success = FALSE;
+	}
+	else {
+		node = calloc(sizeof(QUEUE_NODE), 1);
+		node->data = data;
+		node->previous = NULL;
+		if (queue->length == 0) {
+			queue->head = node;
+			queue->tail = node;
+		}
+		else {
+			node->previous = queue->head;
+			queue->head = node;
+		}
+		queue->length++;
+		success = TRUE;
+	}
+	queue_exit(queue);
+	return success;
+}
+
 BOOL queue_peek(QUEUE* queue, void** data) {
 	BOOL success = FALSE;
 	if (!queue_enter(queue)) {

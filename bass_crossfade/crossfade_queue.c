@@ -49,6 +49,16 @@ BOOL crossfade_queue_dequeue(HSTREAM* handle) {
 	return queue_dequeue(queue, (void**)handle);
 }
 
+BOOL crossfade_queue_push(HSTREAM handle) {
+	if (!queue) {
+		return FALSE;
+	}
+#if _DEBUG
+	printf("Enqueuing channel: %d\n", handle);
+#endif
+	return queue_push(queue, (void*)handle, TRUE);
+}
+
 BOOL crossfade_queue_peek(HSTREAM* handle) {
 	if (!queue) {
 		return FALSE;

@@ -25,6 +25,8 @@ BOOL queue_enqueue(QUEUE* queue, void* data, BOOL unique);
 
 BOOL queue_dequeue(QUEUE* queue, void** data);
 
+BOOL queue_push(QUEUE* queue, void* data, BOOL unique);
+
 BOOL queue_peek(QUEUE* queue, void** data);
 
 BOOL queue_is_empty(QUEUE* queue, BOOL* empty);

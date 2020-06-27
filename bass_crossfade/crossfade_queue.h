@@ -8,6 +8,8 @@ BOOL crossfade_queue_enqueue(HSTREAM handle);
 
 BOOL crossfade_queue_dequeue(HSTREAM* handle);
 
+BOOL crossfade_queue_push(HSTREAM handle);
+
 BOOL crossfade_queue_peek(HSTREAM* handle);
 
 BOOL crossfade_queue_is_empty(BOOL* empty);
