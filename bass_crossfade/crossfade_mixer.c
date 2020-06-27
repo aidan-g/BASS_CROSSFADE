@@ -119,10 +119,16 @@ BOOL crossfade_mixer_remove(HSTREAM handle, BOOL fade_out) {
 }
 
 BOOL crossfade_mixer_next(BOOL fade_in) {
+	HSTREAM mixer;
 	HSTREAM handle;
+	if (!crossfade_mixer_get(&mixer)) {
+		return FALSE;
+	}
 	if (!crossfade_queue_peek(&handle)) {
 		return FALSE;
 	}
-	crossfade_queue_remove(handle);
-	return crossfade_mixer_add(handle, fade_in);
+	if (!crossfade_mixer_add(handle, fade_in)) {
+		return FALSE;
+	}
+	return crossfade_queue_remove(handle);
 }

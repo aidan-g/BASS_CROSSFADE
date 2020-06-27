@@ -64,13 +64,33 @@ void queue_exit(QUEUE* queue) {
 	}
 }
 
-BOOL queue_enqueue(QUEUE* queue, void* data) {
+BOOL queue_contains(QUEUE* queue, void* data) {
 	BOOL success = FALSE;
 	QUEUE_NODE* node;
 	if (!queue_enter(queue)) {
-		success = FALSE;
+		return FALSE;
 	}
-	else if (queue->length == queue->capacity) {
+	if (queue->length > 0) {
+		node = queue->head;
+		while (node) {
+			if (node->data == data) {
+				success = TRUE;
+				break;
+			}
+			node = node->previous;
+		}
+	}
+	queue_exit(queue);
+	return success;
+}
+
+BOOL queue_enqueue(QUEUE* queue, void* data) {
+	BOOL success;
+	QUEUE_NODE* node;
+	if (!queue_enter(queue)) {
+		return FALSE;
+	}
+	if (queue->length == queue->capacity) {
 		success = FALSE;
 	}
 	else {
@@ -93,12 +113,12 @@ BOOL queue_enqueue(QUEUE* queue, void* data) {
 }
 
 BOOL queue_dequeue(QUEUE* queue, void** data) {
-	BOOL success = FALSE;
+	BOOL success;
 	QUEUE_NODE* node;
 	if (!queue_enter(queue)) {
-		success = FALSE;
+		return FALSE;
 	}
-	else if (queue->length == 0) {
+	if (queue->length == 0) {
 		success = FALSE;
 	}
 	else {
@@ -116,9 +136,9 @@ BOOL queue_dequeue(QUEUE* queue, void** data) {
 BOOL queue_peek(QUEUE* queue, void** data) {
 	BOOL success = FALSE;
 	if (!queue_enter(queue)) {
-		success = FALSE;
+		return FALSE;
 	}
-	else if (queue->length > 0) {
+	if (queue->length > 0) {
 		data[0] = queue->head->data;
 		success = TRUE;
 	}
@@ -127,33 +147,33 @@ BOOL queue_peek(QUEUE* queue, void** data) {
 }
 
 BOOL queue_is_empty(QUEUE* queue, BOOL* empty) {
-	BOOL success = FALSE;
 	if (!queue_enter(queue)) {
-		success = FALSE;
+		return FALSE;
 	}
-	else {
-		*empty = queue->length == 0;
-		success = TRUE;
-	}
+	*empty = queue->length == 0;
 	queue_exit(queue);
-	return success;
+	return TRUE;
 }
 
-BOOL queue_get_all(QUEUE* queue, void** data, DWORD* length) {
+BOOL queue_get_all(QUEUE* queue, void** data, size_t size, DWORD* length) {
 	DWORD a;
 	QUEUE_NODE* node;
-	BOOL success = FALSE;
+	BOOL success;
+	BYTE* buffer = (BYTE*)data;
 	if (!queue_enter(queue)) {
-		success = FALSE;
+		return FALSE;
 	}
-	else if (queue->length == 0) {
+	if (queue->length == 0) {
 		success = FALSE;
 	}
 	else {
 		node = queue->head;
 		*length = queue->length;
 		for (a = 0; a < *length; a++) {
-			data[a] = node->data;
+			//This looks weird because although node->data is void* it's not actually a pointer.
+			//We need to copy it by address.
+			memcpy(buffer, &(node)->data, size);
+			buffer += size;
 			node = node->previous;
 		}
 		success = TRUE;
@@ -163,13 +183,13 @@ BOOL queue_get_all(QUEUE* queue, void** data, DWORD* length) {
 }
 
 BOOL queue_remove(QUEUE* queue, void* data) {
-	BOOL success = FALSE;
 	QUEUE_NODE* head;
 	QUEUE_NODE* tail;
+	BOOL success = FALSE;
 	if (!queue_enter(queue)) {
-		success = FALSE;
+		return FALSE;
 	}
-	else if (queue->length == 0) {
+	if (queue->length == 0) {
 		success = FALSE;
 	}
 	else {

@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 
 namespace ManagedBass.Crossfade.Tests
@@ -460,6 +461,55 @@ namespace ManagedBass.Crossfade.Tests
             Bass.StreamFree(playbackChannel);
             BassCrossfade.Free();
             Bass.Free();
+        }
+
+        [Test]
+        public void Test006()
+        {
+            for (var position = 0; position < 10; position++)
+            {
+                if (!BassCrossfade.Init())
+                {
+                    Assert.Fail("Failed to initialize CROSSFADE.");
+                }
+
+                var count = default(int);
+                var channels = default(int[]);
+
+                for (var a = 1; a <= BassCrossfade.MAX_CHANNELS; a++)
+                {
+                    Assert.IsTrue(BassCrossfade.ChannelEnqueue(a));
+                    count = default(int);
+                    channels = BassCrossfade.GetChannels(out count);
+                    Assert.AreEqual(a, count);
+                    for (var b = 1; b <= a; b++)
+                    {
+                        Assert.AreEqual(b, channels[b - 1]);
+                    }
+                }
+
+                Assert.IsFalse(BassCrossfade.ChannelEnqueue(100));
+
+                count = default(int);
+                channels = BassCrossfade.GetChannels(out count);
+
+                Assert.AreEqual(BassCrossfade.MAX_CHANNELS, count);
+
+                foreach (var channel in channels.OrderBy(_ => Guid.NewGuid()).ToArray())
+                {
+                    Assert.IsTrue(BassCrossfade.ChannelRemove(channel));
+                    count = default(int);
+                    channels = BassCrossfade.GetChannels(out count);
+                    Assert.IsFalse(channels.Contains(channel));
+                }
+
+                count = default(int);
+                channels = BassCrossfade.GetChannels(out count);
+
+                Assert.AreEqual(0, count);
+
+                BassCrossfade.Free();
+            }
         }
     }
 }

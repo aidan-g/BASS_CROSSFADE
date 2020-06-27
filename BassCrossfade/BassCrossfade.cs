@@ -5,6 +5,8 @@ namespace ManagedBass.Crossfade
 {
     public class BassCrossfade
     {
+        public const int MAX_CHANNELS = 10;
+
         const BassCrossfadeMode DEFAULT_MODE = BassCrossfadeMode.Always;
 
         const int DEFAULT_PERIOD = 100;

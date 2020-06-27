@@ -4,67 +4,99 @@
 
 #include "bass_crossfade.h"
 #include "crossfade_queue.h"
+#include "queue.h"
 
-static HSTREAM handles[MAX_CHANNELS] = { 0 };
+QUEUE* queue = NULL;
 
-HSTREAM* crossfade_queue_get_all(DWORD* count) {
-	DWORD position;
-	for (position = 0; position < MAX_CHANNELS; position++) {
-		if (!handles[position]) {
-			break;
-		}
+BOOL crossfade_queue_create() {
+	if (queue) {
+		return FALSE;
 	}
-	*count = position;
-	return handles;
+	queue = queue_create(MAX_CHANNELS, TRUE);
+	if (!queue) {
+#if _DEBUG
+		printf("Failed to create queue.\n");
+#endif
+		return FALSE;
+	}
+	return TRUE;
+}
+
+BOOL crossfade_queue_contains(HSTREAM handle) {
+	if (!queue) {
+		return FALSE;
+	}
+	return queue_contains(queue, (void*)handle);
+}
+
+BOOL crossfade_queue_enqueue(HSTREAM handle) {
+	if (!queue) {
+		return FALSE;
+	}
+#if _DEBUG
+	printf("Enqueuing channel: %d\n", handle);
+#endif
+	return queue_enqueue(queue, (void*)handle);
+}
+
+BOOL crossfade_queue_dequeue(HSTREAM* handle) {
+	if (!queue) {
+		return FALSE;
+	}
+#if _DEBUG
+	printf("Dequeuing channel: %d\n", handle);
+#endif
+	return queue_dequeue(queue, (void**)handle);
 }
 
 BOOL crossfade_queue_peek(HSTREAM* handle) {
-	if (!handles[0]) {
+	if (!queue) {
 		return FALSE;
 	}
-	*handle = handles[0];
-	return TRUE;
-}
-
-BOOL crossfade_queue_add(HSTREAM handle) {
-	DWORD position;
-	for (position = 0; position < MAX_CHANNELS; position++) {
-		if (handles[position]) {
-			continue;
-		}
-		handles[position] = handle;
-		return TRUE;
-	}
-	return FALSE;
-}
-
-BOOL crossfade_queue_insert(HSTREAM handle, DWORD index) {
-	if (handles[MAX_CHANNELS - 1]) {
-		return FALSE;
-	}
-	memmove(handles + index + 1, handles + index, sizeof(DWORD) * (MAX_CHANNELS - index));
-	handles[index] = handle;
-	return TRUE;
+	return queue_peek(queue, (void**)handle);
 }
 
 BOOL crossfade_queue_remove(HSTREAM handle) {
-	DWORD position;
-	for (position = 0; position < MAX_CHANNELS; position++) {
-		if (handles[position] != handle) {
-			continue;
-		}
-		for (; position < MAX_CHANNELS; position++) {
-			if (position + 1 == MAX_CHANNELS) {
-				handles[position] = 0;
-			}
-			else {
-				handles[position] = handles[position + 1];
-			}
-			if (!handles[position]) {
-				break;
-			}
-		}
-		return TRUE;
+	if (!queue) {
+		return FALSE;
 	}
-	return FALSE;
+#if _DEBUG
+	printf("Removing channel: %d\n", handle);
+#endif
+	return queue_remove(queue, (void*)handle);
+}
+
+BOOL crossfade_queue_is_empty(BOOL* empty) {
+	if (!queue) {
+		return FALSE;
+	}
+	return queue_is_empty(queue, empty);
+}
+
+BOOL crossfade_queue_count(DWORD* length) {
+	if (!queue) {
+		return FALSE;
+	}
+	*length = queue->length;
+	return TRUE;
+}
+
+HSTREAM* crossfade_queue_get_all(DWORD* length) {
+	static HSTREAM buffer[MAX_CHANNELS];
+	if (!queue) {
+		return NULL;
+	}
+	if (!queue_get_all(queue, (void**)buffer, sizeof(HSTREAM), length)) {
+		*length = 0;
+	}
+	return buffer;
+}
+
+BOOL crossfade_queue_free() {
+	if (!queue) {
+		return FALSE;
+	}
+	queue_free(queue);
+	queue = NULL;
+	return TRUE;
 }
