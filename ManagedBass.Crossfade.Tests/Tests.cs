@@ -479,6 +479,7 @@ namespace ManagedBass.Crossfade.Tests
                 for (var a = 1; a <= BassCrossfade.MAX_CHANNELS; a++)
                 {
                     Assert.IsTrue(BassCrossfade.ChannelEnqueue(a));
+                    Assert.IsFalse(BassCrossfade.ChannelEnqueue(a));
                     count = default(int);
                     channels = BassCrossfade.GetChannels(out count);
                     Assert.AreEqual(a, count);
@@ -498,6 +499,7 @@ namespace ManagedBass.Crossfade.Tests
                 foreach (var channel in channels.OrderBy(_ => Guid.NewGuid()).ToArray())
                 {
                     Assert.IsTrue(BassCrossfade.ChannelRemove(channel));
+                    Assert.IsFalse(BassCrossfade.ChannelRemove(channel));
                     count = default(int);
                     channels = BassCrossfade.GetChannels(out count);
                     Assert.IsFalse(channels.Contains(channel));

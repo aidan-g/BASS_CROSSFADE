@@ -36,7 +36,7 @@ BOOL crossfade_queue_enqueue(HSTREAM handle) {
 #if _DEBUG
 	printf("Enqueuing channel: %d\n", handle);
 #endif
-	return queue_enqueue(queue, (void*)handle);
+	return queue_enqueue(queue, (void*)handle, TRUE);
 }
 
 BOOL crossfade_queue_dequeue(HSTREAM* handle) {

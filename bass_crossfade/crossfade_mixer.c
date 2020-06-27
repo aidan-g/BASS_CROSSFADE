@@ -7,6 +7,7 @@
 #include "crossfade_envelope.h"
 #include "crossfade_mixer.h"
 #include "crossfade_queue.h"
+#include "crossfade_syncs.h"
 
 static void CALLBACK __crossfade_mixer_free(HSYNC handle, DWORD channel, DWORD data, void* user) {
 	crossfade_config_set(CF_MIXER, 0);
@@ -90,6 +91,7 @@ BOOL crossfade_mixer_add(HSTREAM handle, BOOL fade_in) {
 	if (!crossfade_mixer_get(&mixer)) {
 		return FALSE;
 	}
+	crossfade_sync_register(handle);
 	if (fade_in) {
 		crossfade_config_get(CF_OUT_PERIOD, &period);
 		if (period) {
@@ -106,6 +108,7 @@ BOOL crossfade_mixer_add(HSTREAM handle, BOOL fade_in) {
 
 BOOL crossfade_mixer_remove(HSTREAM handle, BOOL fade_out) {
 	DWORD period;
+	crossfade_sync_unregister(handle);
 	if (fade_out) {
 		if (BASS_Mixer_ChannelGetMixer(handle) && BASS_ChannelIsActive(handle) == BASS_ACTIVE_PLAYING) {
 			crossfade_config_get(CF_OUT_PERIOD, &period);

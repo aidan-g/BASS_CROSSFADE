@@ -64,27 +64,31 @@ void queue_exit(QUEUE* queue) {
 	}
 }
 
-BOOL queue_contains(QUEUE* queue, void* data) {
-	BOOL success = FALSE;
+static BOOL _queue_contains(QUEUE* queue, void* data) {
 	QUEUE_NODE* node;
-	if (!queue_enter(queue)) {
-		return FALSE;
-	}
 	if (queue->length > 0) {
 		node = queue->head;
 		while (node) {
 			if (node->data == data) {
-				success = TRUE;
-				break;
+				return TRUE;
 			}
 			node = node->previous;
 		}
 	}
+	return FALSE;
+}
+
+BOOL queue_contains(QUEUE* queue, void* data) {
+	BOOL success;
+	if (!queue_enter(queue)) {
+		return FALSE;
+	}
+	success = _queue_contains(queue, data);
 	queue_exit(queue);
 	return success;
 }
 
-BOOL queue_enqueue(QUEUE* queue, void* data) {
+BOOL queue_enqueue(QUEUE* queue, void* data, BOOL unique) {
 	BOOL success;
 	QUEUE_NODE* node;
 	if (!queue_enter(queue)) {
@@ -94,19 +98,24 @@ BOOL queue_enqueue(QUEUE* queue, void* data) {
 		success = FALSE;
 	}
 	else {
-		node = calloc(sizeof(QUEUE_NODE), 1);
-		node->data = data;
-		node->previous = NULL;
-		if (queue->length == 0) {
-			queue->head = node;
-			queue->tail = node;
+		if (unique && _queue_contains(queue, data)) {
+			success = FALSE;
 		}
 		else {
-			queue->tail->previous = node;
-			queue->tail = node;
+			node = calloc(sizeof(QUEUE_NODE), 1);
+			node->data = data;
+			node->previous = NULL;
+			if (queue->length == 0) {
+				queue->head = node;
+				queue->tail = node;
+			}
+			else {
+				queue->tail->previous = node;
+				queue->tail = node;
+			}
+			queue->length++;
+			success = TRUE;
 		}
-		queue->length++;
-		success = TRUE;
 	}
 	queue_exit(queue);
 	return success;

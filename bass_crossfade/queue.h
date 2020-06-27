@@ -21,7 +21,7 @@ void queue_free(QUEUE* queue);
 
 BOOL queue_contains(QUEUE* queue, void* data);
 
-BOOL queue_enqueue(QUEUE* queue, void* data);
+BOOL queue_enqueue(QUEUE* queue, void* data, BOOL unique);
 
 BOOL queue_dequeue(QUEUE* queue, void** data);
 

@@ -125,23 +125,19 @@ DWORD* BASSCROSSFADEDEF(BASS_CROSSFADE_GetChannels)(DWORD* count) {
 
 BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_ChannelEnqueue)(HSTREAM handle) {
 	DWORD mode;
-	BOOL success = TRUE;
-	if (!crossfade_sync_register(handle)) {
-		return FALSE;
-	}
+	BOOL success;
 	if (!crossfade_mixer_playing()) {
 		crossfade_config_get(CF_MODE, &mode);
 		if (mode == CF_ALWAYS) {
-			success &= crossfade_mixer_add(handle, TRUE);
+			success = crossfade_mixer_add(handle, TRUE);
 		}
 		else {
-			success &= crossfade_mixer_add(handle, FALSE);
-		}
-		if (success) {
-			return TRUE;
+			success = crossfade_mixer_add(handle, FALSE);
 		}
 	}
-	success = crossfade_queue_enqueue(handle);
+	if (!success) {
+		success = crossfade_queue_enqueue(handle);
+	}
 	return success;
 }
 
@@ -149,7 +145,8 @@ BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_ChannelRemove)(HSTREAM handle) {
 	DWORD mix;
 	BOOL success = TRUE;
 	crossfade_config_get(CF_MIX, &mix);
-	success &= crossfade_sync_unregister(handle);
+	//This probably isn't required.
+	crossfade_sync_unregister(handle);
 	if (mix) {
 		crossfade_mixer_next(TRUE);
 		success &= crossfade_mixer_remove(handle, TRUE) || crossfade_queue_remove(handle);
