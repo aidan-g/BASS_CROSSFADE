@@ -135,7 +135,7 @@ DWORD* BASSCROSSFADEDEF(BASS_CROSSFADE_GetChannels)(DWORD* count) {
 
 BOOL BASSCROSSFADEDEF(BASS_CROSSFADE_ChannelEnqueue)(HSTREAM handle) {
 	DWORD mode;
-	BOOL success;
+	BOOL success = FALSE;
 	if (!crossfade_mixer_playing()) {
 		crossfade_config_get(CF_MODE, &mode);
 		if (mode == CF_ALWAYS) {

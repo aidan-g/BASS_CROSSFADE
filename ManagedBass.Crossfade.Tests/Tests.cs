@@ -299,6 +299,13 @@ namespace ManagedBass.Crossfade.Tests
                     Assert.Fail("Registered channel should not have been removed.");
                 }
 
+                Thread.Sleep(5000);
+
+                if (!BassCrossfade.ChannelRemove(sourceChannel2))
+                {
+                    Assert.Fail("Registered channel should not have been removed.");
+                }
+
                 Bass.StreamFree(sourceChannel1);
                 Bass.StreamFree(sourceChannel2);
                 Bass.StreamFree(playbackChannel);
